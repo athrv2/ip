@@ -15,7 +15,6 @@ public class Adolf {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        // Primitive storage
         char[] type = new char[100];
         String[] desc = new String[100];
         String[] by = new String[100];
@@ -68,6 +67,40 @@ public class Adolf {
                 continue;
             }
 
+            if (cleaned.equals("delete") || cleaned.startsWith("delete ")) {
+                Integer index = parseIndex(cleaned, "delete");
+                if (index == null) {
+                    continue;
+                }
+                if (index < 0 || index >= taskCount) {
+                    printError("That task number doesn't exist. Use: list (then delete <number>).");
+                    continue;
+                }
+
+                String removed = formatTask(type, desc, by, from, to, isDone, index);
+
+                for (int i = index; i < taskCount - 1; i++) {
+                    type[i] = type[i + 1];
+                    desc[i] = desc[i + 1];
+                    by[i] = by[i + 1];
+                    from[i] = from[i + 1];
+                    to[i] = to[i + 1];
+                    isDone[i] = isDone[i + 1];
+                }
+
+                type[taskCount - 1] = '\0';
+                desc[taskCount - 1] = null;
+                by[taskCount - 1] = null;
+                from[taskCount - 1] = null;
+                to[taskCount - 1] = null;
+                isDone[taskCount - 1] = false;
+
+                taskCount--;
+
+                printDelete(removed, taskCount);
+                continue;
+            }
+
             if (cleaned.equals("todo")) {
                 printError("The description of a todo cannot be empty. Usage: todo <description>");
                 continue;
@@ -87,7 +120,6 @@ public class Adolf {
                 printAdd(type, desc, by, from, to, isDone, taskCount - 1, taskCount);
                 continue;
             }
-
 
             if (cleaned.equals("deadline")) {
                 printError("Deadline needs a description and /by. Usage: deadline <desc> /by <when>");
@@ -115,7 +147,6 @@ public class Adolf {
                 printAdd(type, desc, by, from, to, isDone, taskCount - 1, taskCount);
                 continue;
             }
-
 
             if (cleaned.equals("event")) {
                 printError("Event needs /from and /to. Usage: event <desc> /from <start> /to <end>");
@@ -166,8 +197,7 @@ public class Adolf {
                 continue;
             }
 
-
-            printError("I'm sorry, I don't know what that means. Try: todo, deadline, event, list, mark, unmark, bye");
+            printError("I'm sorry, I don't know what that means. Try: todo, deadline, event, list, mark, unmark, delete, bye");
         }
     }
 
@@ -215,6 +245,14 @@ public class Adolf {
         System.out.println(LINE);
     }
 
+    private static void printDelete(String removedTaskLine, int newCount) {
+        System.out.println(LINE);
+        System.out.println(" Noted. I've removed this task:");
+        System.out.println("  " + removedTaskLine);
+        System.out.println(" Now you have " + newCount + " tasks in the list.");
+        System.out.println(LINE);
+    }
+
     private static void printList(char[] type, String[] desc, String[] by, String[] from, String[] to,
                                   boolean[] isDone, int count) {
         System.out.println(LINE);
@@ -249,7 +287,6 @@ public class Adolf {
             return "[" + t + "]" + status + " " + desc[index] + " (by: " + by[index] + ")";
         }
 
-        // Event
         return "[" + t + "]" + status + " " + desc[index]
                 + " (from: " + from[index] + " to: " + to[index] + ")";
     }
