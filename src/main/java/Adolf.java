@@ -16,6 +16,7 @@ public class Adolf {
         Scanner sc = new Scanner(System.in);
 
         String[] tasks = new String[100];
+        boolean[] isDone = new boolean[100];
         int taskCount = 0;
 
         printGreeting();
@@ -30,11 +31,26 @@ public class Adolf {
             }
 
             if (cleaned.equals("list")) {
-                printList(tasks, taskCount);
+                printList(tasks, isDone, taskCount);
+                continue;
+            }
+
+            if (cleaned.startsWith("mark ")) {
+                int index = Integer.parseInt(cleaned.split(" ")[1]) - 1;
+                isDone[index] = true;
+                printMark(true, tasks[index]);
+                continue;
+            }
+
+            if (cleaned.startsWith("unmark ")) {
+                int index = Integer.parseInt(cleaned.split(" ")[1]) - 1;
+                isDone[index] = false;
+                printMark(false, tasks[index]);
                 continue;
             }
 
             tasks[taskCount] = cleaned;
+            isDone[taskCount] = false;
             taskCount++;
 
             printBox("added: " + cleaned);
@@ -55,10 +71,24 @@ public class Adolf {
         System.out.println(LINE);
     }
 
-    private static void printList(String[] tasks, int count) {
+    private static void printList(String[] tasks, boolean[] isDone, int count) {
         System.out.println(LINE);
+        System.out.println(" Here are the tasks in your list:");
         for (int i = 0; i < count; i++) {
-            System.out.println(" " + (i + 1) + ". " + tasks[i]);
+            String status = isDone[i] ? "[X]" : "[ ]";
+            System.out.println(" " + (i + 1) + "." + status + " " + tasks[i]);
+        }
+        System.out.println(LINE);
+    }
+
+    private static void printMark(boolean done, String task) {
+        System.out.println(LINE);
+        if (done) {
+            System.out.println(" Nice! I've marked this task as done:");
+            System.out.println("   [X] " + task);
+        } else {
+            System.out.println(" OK, I've marked this task as not done yet:");
+            System.out.println("   [ ] " + task);
         }
         System.out.println(LINE);
     }
