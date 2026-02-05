@@ -21,7 +21,10 @@ public class Adolf {
         String[] from = new String[100];
         String[] to = new String[100];
         boolean[] isDone = new boolean[100];
-        int taskCount = 0;
+        int taskCount;
+
+        Storage storage = new Storage("data/adolf.txt");
+        taskCount = storage.load(type, desc, by, from, to, isDone);
 
         printGreeting();
 
@@ -49,6 +52,9 @@ public class Adolf {
                     continue;
                 }
                 isDone[index] = true;
+
+                storage.save(type, desc, by, from, to, isDone, taskCount);
+
                 printMark(true, formatTask(type, desc, by, from, to, isDone, index));
                 continue;
             }
@@ -63,6 +69,9 @@ public class Adolf {
                     continue;
                 }
                 isDone[index] = false;
+
+                storage.save(type, desc, by, from, to, isDone, taskCount);
+
                 printMark(false, formatTask(type, desc, by, from, to, isDone, index));
                 continue;
             }
@@ -97,6 +106,8 @@ public class Adolf {
 
                 taskCount--;
 
+                storage.save(type, desc, by, from, to, isDone, taskCount);
+
                 printDelete(removed, taskCount);
                 continue;
             }
@@ -116,6 +127,8 @@ public class Adolf {
                 desc[taskCount] = todoDesc;
                 isDone[taskCount] = false;
                 taskCount++;
+
+                storage.save(type, desc, by, from, to, isDone, taskCount);
 
                 printAdd(type, desc, by, from, to, isDone, taskCount - 1, taskCount);
                 continue;
@@ -143,6 +156,8 @@ public class Adolf {
                 by[taskCount] = parts[1].trim();
                 isDone[taskCount] = false;
                 taskCount++;
+
+                storage.save(type, desc, by, from, to, isDone, taskCount);
 
                 printAdd(type, desc, by, from, to, isDone, taskCount - 1, taskCount);
                 continue;
@@ -192,6 +207,8 @@ public class Adolf {
                 to[taskCount] = eventTo;
                 isDone[taskCount] = false;
                 taskCount++;
+
+                storage.save(type, desc, by, from, to, isDone, taskCount);
 
                 printAdd(type, desc, by, from, to, isDone, taskCount - 1, taskCount);
                 continue;
