@@ -1,3 +1,8 @@
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class Adolf {
@@ -12,19 +17,30 @@ public class Adolf {
                     + " | | | |   | |_| || |_| | | |____| |___ \n"
                     + " |_| |_|   |____/  \\___/  |______|_____|";
 
+    private static final DateTimeFormatter INPUT_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter INPUT_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+    private static final DateTimeFormatter OUTPUT_DATE = DateTimeFormatter.ofPattern("MMM dd yyyy");
+    private static final DateTimeFormatter OUTPUT_TIME = DateTimeFormatter.ofPattern("HHmm");
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
         char[] type = new char[100];
         String[] desc = new String[100];
-        String[] by = new String[100];
-        String[] from = new String[100];
-        String[] to = new String[100];
         boolean[] isDone = new boolean[100];
-        int taskCount;
+        
+        LocalDateTime[] deadlineBy = new LocalDateTime[100];
+        boolean[] deadlineHasTime = new boolean[100];
 
-        Storage storage = new Storage("data/adolf.txt");
-        taskCount = storage.load(type, desc, by, from, to, isDone);
+        LocalDateTime[] eventFrom = new LocalDateTime[100];
+        LocalDateTime[] eventTo = new LocalDateTime[100];
+        boolean[] eventFromHasTime = new boolean[100];
+        boolean[] eventToHasTime = new boolean[100];
+
+        Storage storage = new Storage("./data/adolf.txt");
+        int taskCount = storage.load(type, desc, isDone,
+                deadlineBy, deadlineHasTime,
+                eventFrom, eventTo, eventFromHasTime, eventToHasTime);
 
         printGreeting();
 
@@ -38,75 +54,105 @@ public class Adolf {
             }
 
             if (cleaned.equals("list")) {
-                printList(type, desc, by, from, to, isDone, taskCount);
+                printList(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount);
                 continue;
             }
 
             if (cleaned.equals("mark") || cleaned.startsWith("mark ")) {
                 Integer index = parseIndex(cleaned, "mark");
-                if (index == null) {
-                    continue;
-                }
+                if (index == null) continue;
+
                 if (index < 0 || index >= taskCount) {
                     printError("That task number doesn't exist. Use: list (then mark <number>).");
                     continue;
                 }
+
                 isDone[index] = true;
+                storage.save(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount);
 
-                storage.save(type, desc, by, from, to, isDone, taskCount);
-
-                printMark(true, formatTask(type, desc, by, from, to, isDone, index));
+                printMark(true, formatTask(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        index));
                 continue;
             }
 
             if (cleaned.equals("unmark") || cleaned.startsWith("unmark ")) {
                 Integer index = parseIndex(cleaned, "unmark");
-                if (index == null) {
-                    continue;
-                }
+                if (index == null) continue;
+
                 if (index < 0 || index >= taskCount) {
                     printError("That task number doesn't exist. Use: list (then unmark <number>).");
                     continue;
                 }
+
                 isDone[index] = false;
+                storage.save(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount);
 
-                storage.save(type, desc, by, from, to, isDone, taskCount);
-
-                printMark(false, formatTask(type, desc, by, from, to, isDone, index));
+                printMark(false, formatTask(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        index));
                 continue;
             }
 
             if (cleaned.equals("delete") || cleaned.startsWith("delete ")) {
                 Integer index = parseIndex(cleaned, "delete");
-                if (index == null) {
-                    continue;
-                }
+                if (index == null) continue;
+
                 if (index < 0 || index >= taskCount) {
                     printError("That task number doesn't exist. Use: list (then delete <number>).");
                     continue;
                 }
 
-                String removed = formatTask(type, desc, by, from, to, isDone, index);
+                String removed = formatTask(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        index);
 
                 for (int i = index; i < taskCount - 1; i++) {
                     type[i] = type[i + 1];
                     desc[i] = desc[i + 1];
-                    by[i] = by[i + 1];
-                    from[i] = from[i + 1];
-                    to[i] = to[i + 1];
                     isDone[i] = isDone[i + 1];
+
+                    deadlineBy[i] = deadlineBy[i + 1];
+                    deadlineHasTime[i] = deadlineHasTime[i + 1];
+
+                    eventFrom[i] = eventFrom[i + 1];
+                    eventTo[i] = eventTo[i + 1];
+                    eventFromHasTime[i] = eventFromHasTime[i + 1];
+                    eventToHasTime[i] = eventToHasTime[i + 1];
                 }
 
-                type[taskCount - 1] = '\0';
-                desc[taskCount - 1] = null;
-                by[taskCount - 1] = null;
-                from[taskCount - 1] = null;
-                to[taskCount - 1] = null;
-                isDone[taskCount - 1] = false;
+                // clear last slot
+                int last = taskCount - 1;
+                type[last] = '\0';
+                desc[last] = null;
+                isDone[last] = false;
+
+                deadlineBy[last] = null;
+                deadlineHasTime[last] = false;
+
+                eventFrom[last] = null;
+                eventTo[last] = null;
+                eventFromHasTime[last] = false;
+                eventToHasTime[last] = false;
 
                 taskCount--;
 
-                storage.save(type, desc, by, from, to, isDone, taskCount);
+                storage.save(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount);
 
                 printDelete(removed, taskCount);
                 continue;
@@ -128,14 +174,20 @@ public class Adolf {
                 isDone[taskCount] = false;
                 taskCount++;
 
-                storage.save(type, desc, by, from, to, isDone, taskCount);
+                storage.save(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount);
 
-                printAdd(type, desc, by, from, to, isDone, taskCount - 1, taskCount);
+                printAdd(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount - 1, taskCount);
                 continue;
             }
 
             if (cleaned.equals("deadline")) {
-                printError("Deadline needs a description and /by. Usage: deadline <desc> /by <when>");
+                printError("Deadline needs a description and /by. Usage: deadline <desc> /by <yyyy-MM-dd> [HHmm]");
                 continue;
             }
             if (cleaned.startsWith("deadline ")) {
@@ -143,28 +195,41 @@ public class Adolf {
                 String[] parts = rest.split(" /by ", 2);
 
                 if (parts[0].trim().isEmpty()) {
-                    printError("Deadline description cannot be empty. Usage: deadline <desc> /by <when>");
+                    printError("Deadline description cannot be empty. Usage: deadline <desc> /by <yyyy-MM-dd> [HHmm]");
                     continue;
                 }
                 if (parts.length < 2 || parts[1].trim().isEmpty()) {
-                    printError("Deadline must include /by <when>. Usage: deadline <desc> /by <when>");
+                    printError("Deadline must include /by <yyyy-MM-dd> [HHmm].");
+                    continue;
+                }
+
+                ParsedDateTime parsed = parseDateOrDateTime(parts[1].trim());
+                if (parsed == null) {
+                    printError("Invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm (e.g. 2019-10-15 or 2019-10-15 1800)");
                     continue;
                 }
 
                 type[taskCount] = 'D';
                 desc[taskCount] = parts[0].trim();
-                by[taskCount] = parts[1].trim();
+                deadlineBy[taskCount] = parsed.value;
+                deadlineHasTime[taskCount] = parsed.hasTime;
                 isDone[taskCount] = false;
                 taskCount++;
 
-                storage.save(type, desc, by, from, to, isDone, taskCount);
+                storage.save(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount);
 
-                printAdd(type, desc, by, from, to, isDone, taskCount - 1, taskCount);
+                printAdd(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount - 1, taskCount);
                 continue;
             }
 
             if (cleaned.equals("event")) {
-                printError("Event needs /from and /to. Usage: event <desc> /from <start> /to <end>");
+                printError("Event needs /from and /to. Usage: event <desc> /from <yyyy-MM-dd> [HHmm] /to <yyyy-MM-dd> [HHmm]");
                 continue;
             }
             if (cleaned.startsWith("event ")) {
@@ -172,50 +237,79 @@ public class Adolf {
                 String[] firstSplit = rest.split(" /from ", 2);
 
                 if (firstSplit[0].trim().isEmpty()) {
-                    printError("Event description cannot be empty. Usage: event <desc> /from <start> /to <end>");
+                    printError("Event description cannot be empty.");
                     continue;
                 }
                 if (firstSplit.length < 2) {
-                    printError("Event must include /from <start> /to <end>. Usage: event <desc> /from <start> /to <end>");
+                    printError("Event must include /from <...> /to <...>.");
                     continue;
                 }
 
                 String eventDesc = firstSplit[0].trim();
                 String fromToPart = firstSplit[1];
-
                 String[] secondSplit = fromToPart.split(" /to ", 2);
+
                 if (secondSplit.length < 2) {
-                    printError("Event must include /to <end>. Usage: event <desc> /from <start> /to <end>");
+                    printError("Event must include /to <...>.");
                     continue;
                 }
 
-                String eventFrom = secondSplit[0].trim();
-                String eventTo = secondSplit[1].trim();
+                ParsedDateTime parsedFrom = parseDateOrDateTime(secondSplit[0].trim());
+                ParsedDateTime parsedTo = parseDateOrDateTime(secondSplit[1].trim());
 
-                if (eventFrom.isEmpty()) {
-                    printError("Event /from time cannot be empty. Usage: event <desc> /from <start> /to <end>");
-                    continue;
-                }
-                if (eventTo.isEmpty()) {
-                    printError("Event /to time cannot be empty. Usage: event <desc> /from <start> /to <end>");
+                if (parsedFrom == null || parsedTo == null) {
+                    printError("Invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm.");
                     continue;
                 }
 
                 type[taskCount] = 'E';
                 desc[taskCount] = eventDesc;
-                from[taskCount] = eventFrom;
-                to[taskCount] = eventTo;
+                eventFrom[taskCount] = parsedFrom.value;
+                eventTo[taskCount] = parsedTo.value;
+                eventFromHasTime[taskCount] = parsedFrom.hasTime;
+                eventToHasTime[taskCount] = parsedTo.hasTime;
                 isDone[taskCount] = false;
                 taskCount++;
 
-                storage.save(type, desc, by, from, to, isDone, taskCount);
+                storage.save(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount);
 
-                printAdd(type, desc, by, from, to, isDone, taskCount - 1, taskCount);
+                printAdd(type, desc, isDone,
+                        deadlineBy, deadlineHasTime,
+                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                        taskCount - 1, taskCount);
                 continue;
             }
 
             printError("I'm sorry, I don't know what that means. Try: todo, deadline, event, list, mark, unmark, delete, bye");
         }
+    }
+
+    private static class ParsedDateTime {
+        LocalDateTime value;
+        boolean hasTime;
+        ParsedDateTime(LocalDateTime value, boolean hasTime) {
+            this.value = value;
+            this.hasTime = hasTime;
+        }
+    }
+
+    private static ParsedDateTime parseDateOrDateTime(String s) {
+        // try date+time first: yyyy-MM-dd HHmm
+        try {
+            LocalDateTime dt = LocalDateTime.parse(s, INPUT_DATE_TIME);
+            return new ParsedDateTime(dt, true);
+        } catch (DateTimeParseException ignored) { }
+
+        // then date only: yyyy-MM-dd
+        try {
+            LocalDate d = LocalDate.parse(s, INPUT_DATE);
+            return new ParsedDateTime(d.atStartOfDay(), false);
+        } catch (DateTimeParseException ignored) { }
+
+        return null;
     }
 
     private static Integer parseIndex(String cleaned, String command) {
@@ -253,11 +347,15 @@ public class Adolf {
         System.out.println(LINE);
     }
 
-    private static void printAdd(char[] type, String[] desc, String[] by, String[] from, String[] to,
-                                 boolean[] isDone, int addedIndex, int totalCount) {
+    private static void printAdd(char[] type, String[] desc, boolean[] isDone,
+                                 LocalDateTime[] deadlineBy, boolean[] deadlineHasTime,
+                                 LocalDateTime[] eventFrom, LocalDateTime[] eventTo,
+                                 boolean[] eventFromHasTime, boolean[] eventToHasTime,
+                                 int addedIndex, int totalCount) {
         System.out.println(LINE);
         System.out.println(" Got it. I've added this task:");
-        System.out.println("  " + formatTask(type, desc, by, from, to, isDone, addedIndex));
+        System.out.println("  " + formatTask(type, desc, isDone,
+                deadlineBy, deadlineHasTime, eventFrom, eventTo, eventFromHasTime, eventToHasTime, addedIndex));
         System.out.println(" Now you have " + totalCount + " tasks in the list.");
         System.out.println(LINE);
     }
@@ -270,12 +368,16 @@ public class Adolf {
         System.out.println(LINE);
     }
 
-    private static void printList(char[] type, String[] desc, String[] by, String[] from, String[] to,
-                                  boolean[] isDone, int count) {
+    private static void printList(char[] type, String[] desc, boolean[] isDone,
+                                  LocalDateTime[] deadlineBy, boolean[] deadlineHasTime,
+                                  LocalDateTime[] eventFrom, LocalDateTime[] eventTo,
+                                  boolean[] eventFromHasTime, boolean[] eventToHasTime,
+                                  int count) {
         System.out.println(LINE);
         System.out.println(" Here are the tasks in your list:");
         for (int i = 0; i < count; i++) {
-            System.out.println(" " + (i + 1) + "." + formatTask(type, desc, by, from, to, isDone, i));
+            System.out.println(" " + (i + 1) + "." + formatTask(type, desc, isDone,
+                    deadlineBy, deadlineHasTime, eventFrom, eventTo, eventFromHasTime, eventToHasTime, i));
         }
         System.out.println(LINE);
     }
@@ -291,8 +393,11 @@ public class Adolf {
         System.out.println(LINE);
     }
 
-    private static String formatTask(char[] type, String[] desc, String[] by, String[] from, String[] to,
-                                     boolean[] isDone, int index) {
+    private static String formatTask(char[] type, String[] desc, boolean[] isDone,
+                                     LocalDateTime[] deadlineBy, boolean[] deadlineHasTime,
+                                     LocalDateTime[] eventFrom, LocalDateTime[] eventTo,
+                                     boolean[] eventFromHasTime, boolean[] eventToHasTime,
+                                     int index) {
         String status = isDone[index] ? "[X]" : "[ ]";
         char t = type[index];
 
@@ -301,10 +406,21 @@ public class Adolf {
         }
 
         if (t == 'D') {
-            return "[" + t + "]" + status + " " + desc[index] + " (by: " + by[index] + ")";
+            String pretty = prettyPrint(deadlineBy[index], deadlineHasTime[index]);
+            return "[" + t + "]" + status + " " + desc[index] + " (by: " + pretty + ")";
         }
 
+        // E
+        String prettyFrom = prettyPrint(eventFrom[index], eventFromHasTime[index]);
+        String prettyTo = prettyPrint(eventTo[index], eventToHasTime[index]);
         return "[" + t + "]" + status + " " + desc[index]
-                + " (from: " + from[index] + " to: " + to[index] + ")";
+                + " (from: " + prettyFrom + " to: " + prettyTo + ")";
+    }
+
+    private static String prettyPrint(LocalDateTime dt, boolean hasTime) {
+        if (dt == null) return "";
+        String datePart = dt.toLocalDate().format(OUTPUT_DATE);
+        if (!hasTime) return datePart;
+        return datePart + " " + dt.toLocalTime().format(OUTPUT_TIME);
     }
 }
