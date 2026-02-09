@@ -13,22 +13,13 @@ public class Adolf {
     public static void main(String[] args) {
         Ui ui = new Ui();
 
-        char[] type = new char[100];
-        String[] desc = new String[100];
-        boolean[] isDone = new boolean[100];
-
-        LocalDateTime[] deadlineBy = new LocalDateTime[100];
-        boolean[] deadlineHasTime = new boolean[100];
-
-        LocalDateTime[] eventFrom = new LocalDateTime[100];
-        LocalDateTime[] eventTo = new LocalDateTime[100];
-        boolean[] eventFromHasTime = new boolean[100];
-        boolean[] eventToHasTime = new boolean[100];
+        TaskList tasks = new TaskList(100);
 
         Storage storage = new Storage("./data/adolf.txt");
-        int taskCount = storage.load(type, desc, isDone,
-                deadlineBy, deadlineHasTime,
-                eventFrom, eventTo, eventFromHasTime, eventToHasTime);
+        int loadedCount = storage.load(tasks.types(), tasks.descs(), tasks.dones(),
+                tasks.deadlineBy(), tasks.deadlineHasTime(),
+                tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime());
+        tasks.setSize(loadedCount);
 
         ui.showGreeting();
 
@@ -43,10 +34,11 @@ public class Adolf {
 
             if (cleaned.equals("list")) {
                 ui.showTaskListHeader();
-                for (int i = 0; i < taskCount; i++) {
-                    ui.showTaskListItem(i + 1, formatTask(type, desc, isDone,
-                            deadlineBy, deadlineHasTime,
-                            eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                for (int i = 0; i < tasks.size(); i++) {
+                    ui.showTaskListItem(i + 1, formatTask(
+                            tasks.types(), tasks.descs(), tasks.dones(),
+                            tasks.deadlineBy(), tasks.deadlineHasTime(),
+                            tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
                             i));
                 }
                 ui.showTaskListFooter();
@@ -60,20 +52,22 @@ public class Adolf {
                     continue;
                 }
 
-                if (index < 0 || index >= taskCount) {
+                if (index < 0 || index >= tasks.size()) {
                     ui.showError("That task number doesn't exist. Use: list (then mark <number>).");
                     continue;
                 }
 
-                isDone[index] = true;
-                storage.save(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
-                        taskCount);
+                tasks.markDone(index, true);
 
-                ui.showMarked(true, formatTask(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                storage.save(tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size());
+
+                ui.showMarked(true, formatTask(
+                        tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
                         index));
                 continue;
             }
@@ -85,23 +79,27 @@ public class Adolf {
                     continue;
                 }
 
-                if (index < 0 || index >= taskCount) {
+                if (index < 0 || index >= tasks.size()) {
                     ui.showError("That task number doesn't exist. Use: list (then unmark <number>).");
                     continue;
                 }
 
-                isDone[index] = false;
-                storage.save(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
-                        taskCount);
+                tasks.markDone(index, false);
 
-                ui.showMarked(false, formatTask(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                storage.save(tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size());
+
+                ui.showMarked(false, formatTask(
+                        tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
                         index));
                 continue;
             }
+
+            // delete / todo / deadline / event remain in Adolf for now (still using arrays via tasks getters)
 
             if (Parser.isCommand(cleaned, "delete")) {
                 Integer index = Parser.parseIndex(cleaned, "delete");
@@ -110,51 +108,53 @@ public class Adolf {
                     continue;
                 }
 
-                if (index < 0 || index >= taskCount) {
+                if (index < 0 || index >= tasks.size()) {
                     ui.showError("That task number doesn't exist. Use: list (then delete <number>).");
                     continue;
                 }
 
-                String removed = formatTask(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
+                String removed = formatTask(
+                        tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
                         index);
 
-                for (int i = index; i < taskCount - 1; i++) {
-                    type[i] = type[i + 1];
-                    desc[i] = desc[i + 1];
-                    isDone[i] = isDone[i + 1];
+                // shift left in all arrays
+                for (int i = index; i < tasks.size() - 1; i++) {
+                    tasks.types()[i] = tasks.types()[i + 1];
+                    tasks.descs()[i] = tasks.descs()[i + 1];
+                    tasks.dones()[i] = tasks.dones()[i + 1];
 
-                    deadlineBy[i] = deadlineBy[i + 1];
-                    deadlineHasTime[i] = deadlineHasTime[i + 1];
+                    tasks.deadlineBy()[i] = tasks.deadlineBy()[i + 1];
+                    tasks.deadlineHasTime()[i] = tasks.deadlineHasTime()[i + 1];
 
-                    eventFrom[i] = eventFrom[i + 1];
-                    eventTo[i] = eventTo[i + 1];
-                    eventFromHasTime[i] = eventFromHasTime[i + 1];
-                    eventToHasTime[i] = eventToHasTime[i + 1];
+                    tasks.eventFrom()[i] = tasks.eventFrom()[i + 1];
+                    tasks.eventTo()[i] = tasks.eventTo()[i + 1];
+                    tasks.eventFromHasTime()[i] = tasks.eventFromHasTime()[i + 1];
+                    tasks.eventToHasTime()[i] = tasks.eventToHasTime()[i + 1];
                 }
 
-                int last = taskCount - 1;
-                type[last] = '\0';
-                desc[last] = null;
-                isDone[last] = false;
+                int last = tasks.size() - 1;
+                tasks.types()[last] = '\0';
+                tasks.descs()[last] = null;
+                tasks.dones()[last] = false;
 
-                deadlineBy[last] = null;
-                deadlineHasTime[last] = false;
+                tasks.deadlineBy()[last] = null;
+                tasks.deadlineHasTime()[last] = false;
 
-                eventFrom[last] = null;
-                eventTo[last] = null;
-                eventFromHasTime[last] = false;
-                eventToHasTime[last] = false;
+                tasks.eventFrom()[last] = null;
+                tasks.eventTo()[last] = null;
+                tasks.eventFromHasTime()[last] = false;
+                tasks.eventToHasTime()[last] = false;
 
-                taskCount--;
+                tasks.decrementSize();
 
-                storage.save(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
-                        taskCount);
+                storage.save(tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size());
 
-                ui.showDeletedTask(removed, taskCount);
+                ui.showDeletedTask(removed, tasks.size());
                 continue;
             }
 
@@ -165,22 +165,23 @@ public class Adolf {
 
             String todoDesc = Parser.parseTodoDescription(cleaned);
             if (todoDesc != null) {
-                type[taskCount] = 'T';
-                desc[taskCount] = todoDesc;
-                isDone[taskCount] = false;
-                taskCount++;
+                tasks.types()[tasks.size()] = 'T';
+                tasks.descs()[tasks.size()] = todoDesc;
+                tasks.dones()[tasks.size()] = false;
+                tasks.incrementSize();
 
-                storage.save(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
-                        taskCount);
+                storage.save(tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size());
 
-                String formatted = formatTask(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
-                        taskCount - 1);
+                String formatted = formatTask(
+                        tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size() - 1);
 
-                ui.showAddedTask(formatted, taskCount);
+                ui.showAddedTask(formatted, tasks.size());
                 continue;
             } else if (Parser.isCommand(cleaned, "todo")) {
                 ui.showError("The description of a todo cannot be empty. Usage: todo <description>");
@@ -200,24 +201,25 @@ public class Adolf {
                     continue;
                 }
 
-                type[taskCount] = 'D';
-                desc[taskCount] = deadlineParts[0];
-                deadlineBy[taskCount] = parsed.value;
-                deadlineHasTime[taskCount] = parsed.hasTime;
-                isDone[taskCount] = false;
-                taskCount++;
+                tasks.types()[tasks.size()] = 'D';
+                tasks.descs()[tasks.size()] = deadlineParts[0];
+                tasks.deadlineBy()[tasks.size()] = parsed.value;
+                tasks.deadlineHasTime()[tasks.size()] = parsed.hasTime;
+                tasks.dones()[tasks.size()] = false;
+                tasks.incrementSize();
 
-                storage.save(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
-                        taskCount);
+                storage.save(tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size());
 
-                String formatted = formatTask(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
-                        taskCount - 1);
+                String formatted = formatTask(
+                        tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size() - 1);
 
-                ui.showAddedTask(formatted, taskCount);
+                ui.showAddedTask(formatted, tasks.size());
                 continue;
             } else if (Parser.isCommand(cleaned, "deadline")) {
                 ui.showError("Deadline usage: deadline <desc> /by <yyyy-MM-dd> [HHmm]");
@@ -239,26 +241,27 @@ public class Adolf {
                     continue;
                 }
 
-                type[taskCount] = 'E';
-                desc[taskCount] = eventParts[0];
-                eventFrom[taskCount] = parsedFrom.value;
-                eventTo[taskCount] = parsedTo.value;
-                eventFromHasTime[taskCount] = parsedFrom.hasTime;
-                eventToHasTime[taskCount] = parsedTo.hasTime;
-                isDone[taskCount] = false;
-                taskCount++;
+                tasks.types()[tasks.size()] = 'E';
+                tasks.descs()[tasks.size()] = eventParts[0];
+                tasks.eventFrom()[tasks.size()] = parsedFrom.value;
+                tasks.eventTo()[tasks.size()] = parsedTo.value;
+                tasks.eventFromHasTime()[tasks.size()] = parsedFrom.hasTime;
+                tasks.eventToHasTime()[tasks.size()] = parsedTo.hasTime;
+                tasks.dones()[tasks.size()] = false;
+                tasks.incrementSize();
 
-                storage.save(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
-                        taskCount);
+                storage.save(tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size());
 
-                String formatted = formatTask(type, desc, isDone,
-                        deadlineBy, deadlineHasTime,
-                        eventFrom, eventTo, eventFromHasTime, eventToHasTime,
-                        taskCount - 1);
+                String formatted = formatTask(
+                        tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size() - 1);
 
-                ui.showAddedTask(formatted, taskCount);
+                ui.showAddedTask(formatted, tasks.size());
                 continue;
             } else if (Parser.isCommand(cleaned, "event")) {
                 ui.showError("Event usage: event <desc> /from <date> /to <date>");
