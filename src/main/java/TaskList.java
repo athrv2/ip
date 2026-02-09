@@ -46,6 +46,24 @@ public class TaskList {
     public void markDone(int index, boolean done) {
         isDone[index] = done;
     }
+
+    public int addTodo(String description) {
+        type[size] = 'T';
+        desc[size] = description;
+        isDone[size] = false;
+
+        // clear date/time fields (not strictly needed but keeps data clean)
+        deadlineBy[size] = null;
+        deadlineHasTime[size] = false;
+
+        eventFrom[size] = null;
+        eventTo[size] = null;
+        eventFromHasTime[size] = false;
+        eventToHasTime[size] = false;
+
+        size++;
+        return size - 1; // index of the added task
+    }
     
     public void delete(int index) {
         if (size == 0) return;

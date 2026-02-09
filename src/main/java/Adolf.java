@@ -137,10 +137,7 @@ public class Adolf {
 
             String todoDesc = Parser.parseTodoDescription(cleaned);
             if (todoDesc != null) {
-                tasks.types()[tasks.size()] = 'T';
-                tasks.descs()[tasks.size()] = todoDesc;
-                tasks.dones()[tasks.size()] = false;
-                tasks.incrementSize();
+                int addedIndex = tasks.addTodo(todoDesc);
 
                 storage.save(tasks.types(), tasks.descs(), tasks.dones(),
                         tasks.deadlineBy(), tasks.deadlineHasTime(),
@@ -151,7 +148,7 @@ public class Adolf {
                         tasks.types(), tasks.descs(), tasks.dones(),
                         tasks.deadlineBy(), tasks.deadlineHasTime(),
                         tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
-                        tasks.size() - 1);
+                        addedIndex);
 
                 ui.showAddedTask(formatted, tasks.size());
                 continue;
