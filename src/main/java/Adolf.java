@@ -53,9 +53,12 @@ public class Adolf {
                 continue;
             }
 
-            if (cleaned.equals("mark") || cleaned.startsWith("mark ")) {
-                Integer index = parseIndex(cleaned, "mark", ui);
-                if (index == null) continue;
+            if (Parser.isCommand(cleaned, "mark")) {
+                Integer index = Parser.parseIndex(cleaned, "mark");
+                if (index == null) {
+                    ui.showError("Please provide a valid task number. Usage: mark <number>");
+                    continue;
+                }
 
                 if (index < 0 || index >= taskCount) {
                     ui.showError("That task number doesn't exist. Use: list (then mark <number>).");
@@ -75,9 +78,12 @@ public class Adolf {
                 continue;
             }
 
-            if (cleaned.equals("unmark") || cleaned.startsWith("unmark ")) {
-                Integer index = parseIndex(cleaned, "unmark", ui);
-                if (index == null) continue;
+            if (Parser.isCommand(cleaned, "unmark")) {
+                Integer index = Parser.parseIndex(cleaned, "unmark");
+                if (index == null) {
+                    ui.showError("Please provide a valid task number. Usage: unmark <number>");
+                    continue;
+                }
 
                 if (index < 0 || index >= taskCount) {
                     ui.showError("That task number doesn't exist. Use: list (then unmark <number>).");
@@ -97,9 +103,12 @@ public class Adolf {
                 continue;
             }
 
-            if (cleaned.equals("delete") || cleaned.startsWith("delete ")) {
-                Integer index = parseIndex(cleaned, "delete", ui);
-                if (index == null) continue;
+            if (Parser.isCommand(cleaned, "delete")) {
+                Integer index = Parser.parseIndex(cleaned, "delete");
+                if (index == null) {
+                    ui.showError("Please provide a valid task number. Usage: delete <number>");
+                    continue;
+                }
 
                 if (index < 0 || index >= taskCount) {
                     ui.showError("That task number doesn't exist. Use: list (then delete <number>).");
@@ -153,13 +162,9 @@ public class Adolf {
                 ui.showError("The description of a todo cannot be empty. Usage: todo <description>");
                 continue;
             }
-            if (cleaned.startsWith("todo ")) {
-                String todoDesc = cleaned.substring(5).trim();
-                if (todoDesc.isEmpty()) {
-                    ui.showError("The description of a todo cannot be empty. Usage: todo <description>");
-                    continue;
-                }
 
+            String todoDesc = Parser.parseTodoDescription(cleaned);
+            if (todoDesc != null) {
                 type[taskCount] = 'T';
                 desc[taskCount] = todoDesc;
                 isDone[taskCount] = false;
@@ -177,33 +182,26 @@ public class Adolf {
 
                 ui.showAddedTask(formatted, taskCount);
                 continue;
+            } else if (Parser.isCommand(cleaned, "todo")) {
+                ui.showError("The description of a todo cannot be empty. Usage: todo <description>");
+                continue;
             }
 
             if (cleaned.equals("deadline")) {
                 ui.showError("Deadline needs a description and /by. Usage: deadline <desc> /by <yyyy-MM-dd> [HHmm]");
                 continue;
             }
-            if (cleaned.startsWith("deadline ")) {
-                String rest = cleaned.substring(9).trim();
-                String[] parts = rest.split(" /by ", 2);
 
-                if (parts[0].trim().isEmpty()) {
-                    ui.showError("Deadline description cannot be empty. Usage: deadline <desc> /by <yyyy-MM-dd> [HHmm]");
-                    continue;
-                }
-                if (parts.length < 2 || parts[1].trim().isEmpty()) {
-                    ui.showError("Deadline must include /by <yyyy-MM-dd> [HHmm].");
-                    continue;
-                }
-
-                ParsedDateTime parsed = parseDateOrDateTime(parts[1].trim());
+            String[] deadlineParts = Parser.parseDeadline(cleaned);
+            if (deadlineParts != null) {
+                ParsedDateTime parsed = parseDateOrDateTime(deadlineParts[1]);
                 if (parsed == null) {
                     ui.showError("Invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm (e.g. 2019-10-15 or 2019-10-15 1800)");
                     continue;
                 }
 
                 type[taskCount] = 'D';
-                desc[taskCount] = parts[0].trim();
+                desc[taskCount] = deadlineParts[0];
                 deadlineBy[taskCount] = parsed.value;
                 deadlineHasTime[taskCount] = parsed.hasTime;
                 isDone[taskCount] = false;
@@ -221,36 +219,20 @@ public class Adolf {
 
                 ui.showAddedTask(formatted, taskCount);
                 continue;
+            } else if (Parser.isCommand(cleaned, "deadline")) {
+                ui.showError("Deadline usage: deadline <desc> /by <yyyy-MM-dd> [HHmm]");
+                continue;
             }
 
             if (cleaned.equals("event")) {
                 ui.showError("Event needs /from and /to. Usage: event <desc> /from <yyyy-MM-dd> [HHmm] /to <yyyy-MM-dd> [HHmm]");
                 continue;
             }
-            if (cleaned.startsWith("event ")) {
-                String rest = cleaned.substring(6).trim();
-                String[] firstSplit = rest.split(" /from ", 2);
 
-                if (firstSplit[0].trim().isEmpty()) {
-                    ui.showError("Event description cannot be empty.");
-                    continue;
-                }
-                if (firstSplit.length < 2) {
-                    ui.showError("Event must include /from <...> /to <...>.");
-                    continue;
-                }
-
-                String eventDesc = firstSplit[0].trim();
-                String fromToPart = firstSplit[1];
-                String[] secondSplit = fromToPart.split(" /to ", 2);
-
-                if (secondSplit.length < 2) {
-                    ui.showError("Event must include /to <...>.");
-                    continue;
-                }
-
-                ParsedDateTime parsedFrom = parseDateOrDateTime(secondSplit[0].trim());
-                ParsedDateTime parsedTo = parseDateOrDateTime(secondSplit[1].trim());
+            String[] eventParts = Parser.parseEvent(cleaned);
+            if (eventParts != null) {
+                ParsedDateTime parsedFrom = parseDateOrDateTime(eventParts[1]);
+                ParsedDateTime parsedTo = parseDateOrDateTime(eventParts[2]);
 
                 if (parsedFrom == null || parsedTo == null) {
                     ui.showError("Invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm.");
@@ -258,7 +240,7 @@ public class Adolf {
                 }
 
                 type[taskCount] = 'E';
-                desc[taskCount] = eventDesc;
+                desc[taskCount] = eventParts[0];
                 eventFrom[taskCount] = parsedFrom.value;
                 eventTo[taskCount] = parsedTo.value;
                 eventFromHasTime[taskCount] = parsedFrom.hasTime;
@@ -277,6 +259,9 @@ public class Adolf {
                         taskCount - 1);
 
                 ui.showAddedTask(formatted, taskCount);
+                continue;
+            } else if (Parser.isCommand(cleaned, "event")) {
+                ui.showError("Event usage: event <desc> /from <date> /to <date>");
                 continue;
             }
 
@@ -306,21 +291,6 @@ public class Adolf {
         } catch (DateTimeParseException ignored) { }
 
         return null;
-    }
-
-    private static Integer parseIndex(String cleaned, String command, Ui ui) {
-        String[] parts = cleaned.split(" ");
-        if (parts.length < 2) {
-            ui.showError("Please provide a task number. Usage: " + command + " <number>");
-            return null;
-        }
-        try {
-            int number = Integer.parseInt(parts[1]);
-            return number - 1;
-        } catch (NumberFormatException e) {
-            ui.showError("Task number must be an integer. Usage: " + command + " <number>");
-            return null;
-        }
     }
 
     private static String formatTask(char[] type, String[] desc, boolean[] isDone,
