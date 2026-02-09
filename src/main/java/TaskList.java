@@ -43,14 +43,41 @@ public class TaskList {
         size++;
     }
 
-    public void decrementSize() {
-        size--;
-    }
-
     public void markDone(int index, boolean done) {
         isDone[index] = done;
     }
+    
+    public void delete(int index) {
+        if (size == 0) return;
+        for (int i = index; i < size - 1; i++) {
+            type[i] = type[i + 1];
+            desc[i] = desc[i + 1];
+            isDone[i] = isDone[i + 1];
 
+            deadlineBy[i] = deadlineBy[i + 1];
+            deadlineHasTime[i] = deadlineHasTime[i + 1];
+
+            eventFrom[i] = eventFrom[i + 1];
+            eventTo[i] = eventTo[i + 1];
+            eventFromHasTime[i] = eventFromHasTime[i + 1];
+            eventToHasTime[i] = eventToHasTime[i + 1];
+        }
+
+        int last = size - 1;
+        type[last] = '\0';
+        desc[last] = null;
+        isDone[last] = false;
+
+        deadlineBy[last] = null;
+        deadlineHasTime[last] = false;
+
+        eventFrom[last] = null;
+        eventTo[last] = null;
+        eventFromHasTime[last] = false;
+        eventToHasTime[last] = false;
+
+        size--;
+    }
     // Temporary getters so Storage + Adolf can keep working while we refactor
     public char[] types() { return type; }
     public String[] descs() { return desc; }

@@ -119,35 +119,7 @@ public class Adolf {
                         tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
                         index);
 
-                // shift left in all arrays
-                for (int i = index; i < tasks.size() - 1; i++) {
-                    tasks.types()[i] = tasks.types()[i + 1];
-                    tasks.descs()[i] = tasks.descs()[i + 1];
-                    tasks.dones()[i] = tasks.dones()[i + 1];
-
-                    tasks.deadlineBy()[i] = tasks.deadlineBy()[i + 1];
-                    tasks.deadlineHasTime()[i] = tasks.deadlineHasTime()[i + 1];
-
-                    tasks.eventFrom()[i] = tasks.eventFrom()[i + 1];
-                    tasks.eventTo()[i] = tasks.eventTo()[i + 1];
-                    tasks.eventFromHasTime()[i] = tasks.eventFromHasTime()[i + 1];
-                    tasks.eventToHasTime()[i] = tasks.eventToHasTime()[i + 1];
-                }
-
-                int last = tasks.size() - 1;
-                tasks.types()[last] = '\0';
-                tasks.descs()[last] = null;
-                tasks.dones()[last] = false;
-
-                tasks.deadlineBy()[last] = null;
-                tasks.deadlineHasTime()[last] = false;
-
-                tasks.eventFrom()[last] = null;
-                tasks.eventTo()[last] = null;
-                tasks.eventFromHasTime()[last] = false;
-                tasks.eventToHasTime()[last] = false;
-
-                tasks.decrementSize();
+                tasks.delete(index);
 
                 storage.save(tasks.types(), tasks.descs(), tasks.dones(),
                         tasks.deadlineBy(), tasks.deadlineHasTime(),
