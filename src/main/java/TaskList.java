@@ -47,6 +47,39 @@ public class TaskList {
         isDone[index] = done;
     }
 
+    public int addDeadline(String description, LocalDateTime by, boolean hasTime) {
+        type[size] = 'D';
+        desc[size] = description;
+        isDone[size] = false;
+
+        deadlineBy[size] = by;
+        deadlineHasTime[size] = hasTime;
+
+        int addedIndex = size;
+        size++;
+
+        return addedIndex;
+    }
+
+    public int addEvent(String description,
+                    LocalDateTime from, boolean fromHasTime,
+                    LocalDateTime to, boolean toHasTime) {
+
+        type[size] = 'E';
+        desc[size] = description;
+        isDone[size] = false;
+
+        eventFrom[size] = from;
+        eventTo[size] = to;
+        eventFromHasTime[size] = fromHasTime;
+        eventToHasTime[size] = toHasTime;
+
+        int addedIndex = size;
+        size++;
+
+        return addedIndex;
+    }
+
     public int addTodo(String description) {
         type[size] = 'T';
         desc[size] = description;

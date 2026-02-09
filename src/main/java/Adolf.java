@@ -170,12 +170,11 @@ public class Adolf {
                     continue;
                 }
 
-                tasks.types()[tasks.size()] = 'D';
-                tasks.descs()[tasks.size()] = deadlineParts[0];
-                tasks.deadlineBy()[tasks.size()] = parsed.value;
-                tasks.deadlineHasTime()[tasks.size()] = parsed.hasTime;
-                tasks.dones()[tasks.size()] = false;
-                tasks.incrementSize();
+                int addedIndex = tasks.addDeadline(
+                    deadlineParts[0],
+                    parsed.value,
+                    parsed.hasTime
+                );
 
                 storage.save(tasks.types(), tasks.descs(), tasks.dones(),
                         tasks.deadlineBy(), tasks.deadlineHasTime(),
@@ -186,7 +185,7 @@ public class Adolf {
                         tasks.types(), tasks.descs(), tasks.dones(),
                         tasks.deadlineBy(), tasks.deadlineHasTime(),
                         tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
-                        tasks.size() - 1);
+                        addedIndex);
 
                 ui.showAddedTask(formatted, tasks.size());
                 continue;
@@ -210,14 +209,11 @@ public class Adolf {
                     continue;
                 }
 
-                tasks.types()[tasks.size()] = 'E';
-                tasks.descs()[tasks.size()] = eventParts[0];
-                tasks.eventFrom()[tasks.size()] = parsedFrom.value;
-                tasks.eventTo()[tasks.size()] = parsedTo.value;
-                tasks.eventFromHasTime()[tasks.size()] = parsedFrom.hasTime;
-                tasks.eventToHasTime()[tasks.size()] = parsedTo.hasTime;
-                tasks.dones()[tasks.size()] = false;
-                tasks.incrementSize();
+                int addedIndex = tasks.addEvent(
+                    eventParts[0],
+                    parsedFrom.value, parsedFrom.hasTime,
+                    parsedTo.value, parsedTo.hasTime
+            );
 
                 storage.save(tasks.types(), tasks.descs(), tasks.dones(),
                         tasks.deadlineBy(), tasks.deadlineHasTime(),
@@ -228,7 +224,7 @@ public class Adolf {
                         tasks.types(), tasks.descs(), tasks.dones(),
                         tasks.deadlineBy(), tasks.deadlineHasTime(),
                         tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
-                        tasks.size() - 1);
+                        addedIndex);
 
                 ui.showAddedTask(formatted, tasks.size());
                 continue;
