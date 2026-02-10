@@ -2,6 +2,9 @@ package adolf;
 
 import java.util.Scanner;
 
+/**
+ * Handles all user interface interactions.
+ */
 public class Ui {
     private static final String LINE =
             "____________________________________________________________";

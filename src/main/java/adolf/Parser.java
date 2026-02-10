@@ -1,5 +1,8 @@
 package adolf;
 
+/**
+ * Parses user input commands into structured data.
+ */
 public class Parser {
 
     public static boolean isCommand(String input, String command) {
