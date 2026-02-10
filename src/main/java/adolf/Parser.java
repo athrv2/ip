@@ -1,3 +1,5 @@
+package adolf;
+
 public class Parser {
 
     public static boolean isCommand(String input, String command) {
