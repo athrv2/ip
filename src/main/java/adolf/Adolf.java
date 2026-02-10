@@ -1,3 +1,5 @@
+package adolf;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -213,7 +215,7 @@ public class Adolf {
                     eventParts[0],
                     parsedFrom.value, parsedFrom.hasTime,
                     parsedTo.value, parsedTo.hasTime
-            );
+                );
 
                 storage.save(tasks.types(), tasks.descs(), tasks.dones(),
                         tasks.deadlineBy(), tasks.deadlineHasTime(),

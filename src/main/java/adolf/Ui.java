@@ -1,3 +1,5 @@
+package adolf;
+
 import java.util.Scanner;
 
 public class Ui {
