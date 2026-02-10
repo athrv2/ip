@@ -10,6 +10,7 @@ public class Adolf {
     private static final DateTimeFormatter OUTPUT_DATE = DateTimeFormatter.ofPattern("MMM dd yyyy");
     private static final DateTimeFormatter OUTPUT_TIME = DateTimeFormatter.ofPattern("HHmm");
 
+
     public static void main(String[] args) {
         Ui ui = new Ui();
 
