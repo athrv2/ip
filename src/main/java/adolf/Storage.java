@@ -9,6 +9,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles saving and loading tasks to and from disk.
+ */
 public class Storage {
     private final Path filePath;
     private static final DateTimeFormatter SAVE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");

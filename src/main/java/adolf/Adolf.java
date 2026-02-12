@@ -5,6 +5,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Entry point of the Adolf task management chatbot.
+ * Handles user interaction and command execution.
+ */
 public class Adolf {
 
     private static final DateTimeFormatter INPUT_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -13,6 +17,11 @@ public class Adolf {
     private static final DateTimeFormatter OUTPUT_TIME = DateTimeFormatter.ofPattern("HHmm");
 
 
+    /**
+     * Runs the Adolf chatbot.
+     *
+     * @param args Command-line arguments (not used)
+     */
     public static void main(String[] args) {
         Ui ui = new Ui();
 
