@@ -133,6 +133,33 @@ public class Adolf {
                 continue;
             }
 
+            if (Parser.isCommand(cleaned, "find")) {
+                String keyword = Parser.parseFindKeyword(cleaned);
+                if (keyword == null) {
+                    ui.showError("Find usage: find <keyword>");
+                    continue;
+                }
+
+                ui.showTaskListHeader();
+                int displayed = 0;
+                for (int i = 0; i < tasks.size(); i++) {
+                    String description = tasks.descs()[i];
+                    if (description != null && description.contains(keyword)) {
+                        ui.showTaskListItem(displayed + 1, formatTask(
+                                tasks.types(), tasks.descs(), tasks.dones(),
+                                tasks.deadlineBy(), tasks.deadlineHasTime(),
+                                tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                                i));
+                        displayed++;
+                    }
+                }
+                if (displayed == 0) {
+                    System.out.println(" No matching tasks found.");
+                }
+                ui.showTaskListFooter();
+                continue;
+            }
+
             if (cleaned.equals("todo")) {
                 ui.showError("The description of a todo cannot be empty. Usage: todo <description>");
                 continue;
