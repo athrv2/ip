@@ -29,6 +29,21 @@ public class Parser {
         return desc.isEmpty() ? null : desc;
     }
 
+    /**
+     * Parses the keyword part of a {@code find} command.
+     *
+     * @param input full user input, e.g. {@code "find book"}.
+     * @return the keyword to search for, or {@code null} if the command is
+     *     not a valid find command or the keyword is empty.
+     */
+    public static String parseFindKeyword(String input) {
+        if (!input.startsWith("find ")) {
+            return null;
+        }
+        String keyword = input.substring(5).trim();
+        return keyword.isEmpty() ? null : keyword;
+    }
+
     public static String[] parseDeadline(String input) {
         // returns {description, byPart} or null
         if (!input.startsWith("deadline ")) return null;

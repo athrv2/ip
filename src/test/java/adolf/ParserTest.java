@@ -55,4 +55,17 @@ public class ParserTest {
         assertNull(Parser.parseIndex("mark", "mark"));
         assertNull(Parser.parseIndex("mark one", "mark"));
     }
+
+    @Test
+    public void parseFindKeyword_validInput_returnsKeyword() {
+        assertEquals("book", Parser.parseFindKeyword("find book"));
+        assertEquals("read", Parser.parseFindKeyword("find read"));
+    }
+
+    @Test
+    public void parseFindKeyword_invalidOrEmpty_returnsNull() {
+        assertNull(Parser.parseFindKeyword("find"));
+        assertNull(Parser.parseFindKeyword("find "));
+        assertNull(Parser.parseFindKeyword("todo read book"));
+    }
 }
