@@ -13,13 +13,16 @@ import java.util.List;
  * Handles saving and loading tasks to and from disk.
  */
 public class Storage {
-    private final Path filePath;
     private static final DateTimeFormatter SAVE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+    private final Path filePath;
 
     public Storage(String relativePath) {
         this.filePath = Paths.get(relativePath);
     }
 
+    /**
+     * Saves the given task arrays to the storage file.
+     */
     public void save(char[] type, String[] desc, boolean[] isDone,
                      LocalDateTime[] deadlineBy, boolean[] deadlineHasTime,
                      LocalDateTime[] eventFrom, LocalDateTime[] eventTo,
@@ -53,6 +56,11 @@ public class Storage {
         }
     }
 
+    /**
+     * Loads tasks from the storage file into the given arrays.
+     *
+     * @return number of tasks loaded
+     */
     public int load(char[] type, String[] desc, boolean[] isDone,
                     LocalDateTime[] deadlineBy, boolean[] deadlineHasTime,
                     LocalDateTime[] eventFrom, LocalDateTime[] eventTo,
@@ -68,7 +76,9 @@ public class Storage {
 
             for (String line : lines) {
                 // Skip junk lines (stretch: corrupted file handling)
-                if (line == null || line.trim().isEmpty()) continue;
+                if (line == null || line.trim().isEmpty()) {
+                    continue;
+                }
 
                 String[] parts = line.split(" \\| ");
 
@@ -100,10 +110,11 @@ public class Storage {
                     eventFrom[count] = parseSavedDateOrDateTime(parts[3].trim(), fromHas);
                     eventTo[count] = parseSavedDateOrDateTime(parts[5].trim(), toHas);
                     count++;
-                } else {
                 }
 
-                if (count >= 100) break;
+                if (count >= 100) {
+                    break;
+                }
             }
 
             return count;
@@ -120,12 +131,15 @@ public class Storage {
         }
     }
 
+
     private static String safe(String s) {
         return (s == null) ? "" : s;
     }
 
     private static String saveDateOrDateTime(LocalDateTime dt, boolean hasTime) {
-        if (dt == null) return "";
+        if (dt == null) {
+            return "";
+        }
         if (!hasTime) {
             return dt.toLocalDate().toString();
         }
