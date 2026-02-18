@@ -85,7 +85,9 @@ public class TaskList {
      * @return index of the newly added task, or -1 if capacity is full
      */
     public int addTodo(String description) {
-        if (isFull()) return -1;
+        if (isFull()) {
+            return -1;
+        }
 
         type[size] = 'T';
         desc[size] = description;
@@ -114,7 +116,9 @@ public class TaskList {
      * @return index of the newly added task, or -1 if capacity is full
      */
     public int addDeadline(String description, LocalDateTime by, boolean hasTime) {
-        if (isFull()) return -1;
+        if (isFull()) {
+            return -1;
+        }
 
         type[size] = 'D';
         desc[size] = description;
@@ -148,7 +152,9 @@ public class TaskList {
                         LocalDateTime from, boolean fromHasTime,
                         LocalDateTime to, boolean toHasTime) {
 
-        if (isFull()) return -1;
+        if (isFull()) {
+            return -1;
+        }
 
         type[size] = 'E';
         desc[size] = description;
@@ -220,15 +226,39 @@ public class TaskList {
     }
 
     // Temporary getters so Storage + Adolf can keep working while we refactor
-    public char[] types() { return type; }
-    public String[] descs() { return desc; }
-    public boolean[] dones() { return isDone; }
+    public char[] types() {
+        return type;
+    }
 
-    public LocalDateTime[] deadlineBy() { return deadlineBy; }
-    public boolean[] deadlineHasTime() { return deadlineHasTime; }
+    public String[] descs() {
+        return desc;
+    }
 
-    public LocalDateTime[] eventFrom() { return eventFrom; }
-    public LocalDateTime[] eventTo() { return eventTo; }
-    public boolean[] eventFromHasTime() { return eventFromHasTime; }
-    public boolean[] eventToHasTime() { return eventToHasTime; }
+    public boolean[] dones() {
+        return isDone;
+    }
+
+    public LocalDateTime[] deadlineBy() {
+        return deadlineBy;
+    }
+
+    public boolean[] deadlineHasTime() {
+        return deadlineHasTime;
+    }
+
+    public LocalDateTime[] eventFrom() {
+        return eventFrom;
+    }
+
+    public LocalDateTime[] eventTo() {
+        return eventTo;
+    }
+
+    public boolean[] eventFromHasTime() {
+        return eventFromHasTime;
+    }
+
+    public boolean[] eventToHasTime() {
+        return eventToHasTime;
+    }
 }

@@ -205,14 +205,15 @@ public class Adolf {
             if (deadlineParts != null) {
                 ParsedDateTime parsed = parseDateOrDateTime(deadlineParts[1]);
                 if (parsed == null) {
-                    ui.showError("Invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm (e.g. 2019-10-15 or 2019-10-15 1800)");
+                    ui.showError("Invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm "
+                            + "(e.g. 2019-10-15 or 2019-10-15 1800)");
                     continue;
                 }
 
                 int addedIndex = tasks.addDeadline(
                     deadlineParts[0],
-                    parsed.value,
-                    parsed.hasTime
+                    parsed.getValue(),
+                    parsed.isHasTime()
                 );
 
                 storage.save(tasks.types(), tasks.descs(), tasks.dones(),
@@ -234,7 +235,8 @@ public class Adolf {
             }
 
             if (cleaned.equals("event")) {
-                ui.showError("Event needs /from and /to. Usage: event <desc> /from <yyyy-MM-dd> [HHmm] /to <yyyy-MM-dd> [HHmm]");
+                ui.showError("Event needs /from and /to. Usage: event <desc> /from <yyyy-MM-dd> [HHmm] "
+                        + "/to <yyyy-MM-dd> [HHmm]");
                 continue;
             }
 
@@ -250,8 +252,8 @@ public class Adolf {
 
                 int addedIndex = tasks.addEvent(
                     eventParts[0],
-                    parsedFrom.value, parsedFrom.hasTime,
-                    parsedTo.value, parsedTo.hasTime
+                    parsedFrom.getValue(), parsedFrom.isHasTime(),
+                    parsedTo.getValue(), parsedTo.isHasTime()
                 );
 
                 storage.save(tasks.types(), tasks.descs(), tasks.dones(),
@@ -272,17 +274,26 @@ public class Adolf {
                 continue;
             }
 
-            ui.showError("I'm sorry, I don't know what that means. Try: todo, deadline, event, list, mark, unmark, delete, bye");
+            ui.showError("I'm sorry, I don't know what that means. Try: todo, deadline, event, list, "
+                    + "mark, unmark, delete, bye");
         }
     }
 
     private static class ParsedDateTime {
-        LocalDateTime value;
-        boolean hasTime;
+        private final LocalDateTime value;
+        private final boolean hasTime;
 
         ParsedDateTime(LocalDateTime value, boolean hasTime) {
             this.value = value;
             this.hasTime = hasTime;
+        }
+
+        LocalDateTime getValue() {
+            return value;
+        }
+
+        boolean isHasTime() {
+            return hasTime;
         }
     }
 
@@ -290,12 +301,16 @@ public class Adolf {
         try {
             LocalDateTime dt = LocalDateTime.parse(s, INPUT_DATE_TIME);
             return new ParsedDateTime(dt, true);
-        } catch (DateTimeParseException ignored) { }
+        } catch (DateTimeParseException ignored) {
+            // not in datetime format, try date-only
+        }
 
         try {
             LocalDate d = LocalDate.parse(s, INPUT_DATE);
             return new ParsedDateTime(d.atStartOfDay(), false);
-        } catch (DateTimeParseException ignored) { }
+        } catch (DateTimeParseException ignored) {
+            // invalid format
+        }
 
         return null;
     }
@@ -326,9 +341,13 @@ public class Adolf {
     }
 
     private static String prettyPrint(LocalDateTime dt, boolean hasTime) {
-        if (dt == null) return "";
+        if (dt == null) {
+            return "";
+        }
         String datePart = dt.toLocalDate().format(OUTPUT_DATE);
-        if (!hasTime) return datePart;
+        if (!hasTime) {
+            return datePart;
+        }
         return datePart + " " + dt.toLocalTime().format(OUTPUT_TIME);
     }
 }
