@@ -59,7 +59,6 @@ public class TaskList {
      */
     public void setSize(int size) {
         if (size < 0 || size > type.length) {
-            // keep it safe: do nothing if invalid
             return;
         }
         this.size = size;
@@ -90,26 +89,9 @@ public class TaskList {
         if (isFull()) {
             return -1;
         }
-        assert description != null : "Todo description is null";
-        assert !description.isBlank() : "Todo description is blank";
-        assert size < type.length : "TaskList is full";
-
-        type[size] = 'T';
-        desc[size] = description;
-        isDone[size] = false;
-
-        // clear date/time fields
-        deadlineBy[size] = null;
-        deadlineHasTime[size] = false;
-
-        eventFrom[size] = null;
-        eventTo[size] = null;
-        eventFromHasTime[size] = false;
-        eventToHasTime[size] = false;
-
-        int addedIndex = size;
-        size++;
-        return addedIndex;
+        int index = appendBaseTask('T', description);
+        clearDateTimeFields(index);
+        return index;
     }
 
     /**
@@ -124,28 +106,17 @@ public class TaskList {
         if (isFull()) {
             return -1;
         }
+        int index = appendBaseTask('D', description);
+        deadlineBy[index] = by;
+        deadlineHasTime[index] = hasTime;
 
-        assert description != null : "Deadline description is null";
-        assert !description.isBlank() : "Deadline description is blank";
-        assert by != null : "Deadline 'by' is null";
-        assert size < type.length : "TaskList is full";
+        // keep data clean
+        eventFrom[index] = null;
+        eventTo[index] = null;
+        eventFromHasTime[index] = false;
+        eventToHasTime[index] = false;
 
-        type[size] = 'D';
-        desc[size] = description;
-        isDone[size] = false;
-
-        deadlineBy[size] = by;
-        deadlineHasTime[size] = hasTime;
-
-        // clear event fields
-        eventFrom[size] = null;
-        eventTo[size] = null;
-        eventFromHasTime[size] = false;
-        eventToHasTime[size] = false;
-
-        int addedIndex = size;
-        size++;
-        return addedIndex;
+        return index;
     }
 
     /**
@@ -161,33 +132,20 @@ public class TaskList {
     public int addEvent(String description,
                         LocalDateTime from, boolean fromHasTime,
                         LocalDateTime to, boolean toHasTime) {
-
         if (isFull()) {
             return -1;
         }
+        int index = appendBaseTask('E', description);
+        eventFrom[index] = from;
+        eventTo[index] = to;
+        eventFromHasTime[index] = fromHasTime;
+        eventToHasTime[index] = toHasTime;
 
-        assert description != null : "Event description is null";
-        assert !description.isBlank() : "Event description is blank";
-        assert from != null : "Event 'from' is null";
-        assert to != null : "Event 'to' is null";
-        assert size < type.length : "TaskList is full";
+        // keep data clean
+        deadlineBy[index] = null;
+        deadlineHasTime[index] = false;
 
-        type[size] = 'E';
-        desc[size] = description;
-        isDone[size] = false;
-
-        eventFrom[size] = from;
-        eventTo[size] = to;
-        eventFromHasTime[size] = fromHasTime;
-        eventToHasTime[size] = toHasTime;
-
-        // clear deadline fields
-        deadlineBy[size] = null;
-        deadlineHasTime[size] = false;
-
-        int addedIndex = size;
-        size++;
-        return addedIndex;
+        return index;
     }
 
     /**
@@ -199,8 +157,8 @@ public class TaskList {
         if (!isValidIndex(index)) {
             return;
         }
-        
-        assert index >= 0 && index < size : "delete index out of range: " + index;
+        assert size > 0 : "Delete called when size is 0";
+        assert index >= 0 && index < size : "Delete index out of range";
 
         for (int i = index; i < size - 1; i++) {
             type[i] = type[i + 1];
@@ -216,20 +174,7 @@ public class TaskList {
             eventToHasTime[i] = eventToHasTime[i + 1];
         }
 
-        // clear last slot
-        int last = size - 1;
-        type[last] = '\0';
-        desc[last] = null;
-        isDone[last] = false;
-
-        deadlineBy[last] = null;
-        deadlineHasTime[last] = false;
-
-        eventFrom[last] = null;
-        eventTo[last] = null;
-        eventFromHasTime[last] = false;
-        eventToHasTime[last] = false;
-
+        clearSlot(size - 1);
         size--;
     }
 
@@ -241,6 +186,35 @@ public class TaskList {
 
     private boolean isValidIndex(int index) {
         return index >= 0 && index < size;
+    }
+
+    private void ensureCapacity() {
+        assert size < type.length : "TaskList capacity exceeded";
+    }
+
+    private int appendBaseTask(char taskType, String description) {
+        ensureCapacity();
+        type[size] = taskType;
+        desc[size] = description;
+        isDone[size] = false;
+        return size++;
+    }
+
+    private void clearDateTimeFields(int i) {
+        deadlineBy[i] = null;
+        deadlineHasTime[i] = false;
+
+        eventFrom[i] = null;
+        eventTo[i] = null;
+        eventFromHasTime[i] = false;
+        eventToHasTime[i] = false;
+    }
+
+    private void clearSlot(int i) {
+        type[i] = '\0';
+        desc[i] = null;
+        isDone[i] = false;
+        clearDateTimeFields(i);
     }
 
     // Temporary getters so Storage + Adolf can keep working while we refactor
@@ -279,4 +253,5 @@ public class TaskList {
     public boolean[] eventToHasTime() {
         return eventToHasTime;
     }
+
 }

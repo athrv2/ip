@@ -6,8 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Entry point of the Adolf task management chatbot.
- * Handles user interaction and command execution.
+ * Main entry point for the Adolf task manager CLI.
  */
 public class Adolf {
 
@@ -279,6 +278,10 @@ public class Adolf {
         }
     }
 
+    /**
+     * Small value object that tracks a parsed date/time and whether a time
+     * component was provided by the user.
+     */
     public static class ParsedDateTime {
         private final LocalDateTime value;
         private final boolean hasTime;
@@ -291,12 +294,19 @@ public class Adolf {
         public LocalDateTime getValue() {
             return value;
         }
-        
+
         public boolean isHasTime() {
             return hasTime;
         }
     }
 
+    /**
+     * Parses a user-supplied date string as either a full date-time or a date
+     * only value.
+     *
+     * @param s raw date/date-time string
+     * @return parsed result, or {@code null} if parsing fails
+     */
     public static ParsedDateTime parseDateOrDateTime(String s) {
         try {
             LocalDateTime dt = LocalDateTime.parse(s, INPUT_DATE_TIME);
@@ -315,6 +325,9 @@ public class Adolf {
         return null;
     }
 
+    /**
+     * Formats a task stored in the parallel arrays into a human-readable line.
+     */
     private static String formatTask(char[] type, String[] desc, boolean[] isDone,
                                      LocalDateTime[] deadlineBy, boolean[] deadlineHasTime,
                                      LocalDateTime[] eventFrom, LocalDateTime[] eventTo,
@@ -351,6 +364,13 @@ public class Adolf {
         return datePart + " " + dt.toLocalTime().format(OUTPUT_TIME);
     }
 
+    /**
+     * Helper used by UI/bot code to format a task in a {@link TaskList} for display.
+     *
+     * @param tasks task list containing the task
+     * @param index index of the task to format
+     * @return formatted task line (including type and status)
+     */
     public static String formatTaskForUi(TaskList tasks, int index) {
         return formatTask(
                 tasks.types(), tasks.descs(), tasks.dones(),
