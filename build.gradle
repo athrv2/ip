@@ -3,11 +3,17 @@ plugins {
     id 'application'
     id 'checkstyle'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
 }
 
 checkstyle {
     toolVersion = '10.12.4'
     configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+}
+
+javafx {
+    version = "17"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 repositories {
@@ -34,7 +40,7 @@ test {
 }
 
 application {
-    mainClass.set("adolf.Adolf")
+    mainClass.set("adolf.Launcher")
 }
 
 shadowJar {
