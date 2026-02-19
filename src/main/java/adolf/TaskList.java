@@ -75,6 +75,8 @@ public class TaskList {
         if (!isValidIndex(index)) {
             return;
         }
+
+        assert index >= 0 && index < size : "markDone index out of range: " + index;
         isDone[index] = done;
     }
 
@@ -88,6 +90,9 @@ public class TaskList {
         if (isFull()) {
             return -1;
         }
+        assert description != null : "Todo description is null";
+        assert !description.isBlank() : "Todo description is blank";
+        assert size < type.length : "TaskList is full";
 
         type[size] = 'T';
         desc[size] = description;
@@ -119,6 +124,11 @@ public class TaskList {
         if (isFull()) {
             return -1;
         }
+
+        assert description != null : "Deadline description is null";
+        assert !description.isBlank() : "Deadline description is blank";
+        assert by != null : "Deadline 'by' is null";
+        assert size < type.length : "TaskList is full";
 
         type[size] = 'D';
         desc[size] = description;
@@ -156,6 +166,12 @@ public class TaskList {
             return -1;
         }
 
+        assert description != null : "Event description is null";
+        assert !description.isBlank() : "Event description is blank";
+        assert from != null : "Event 'from' is null";
+        assert to != null : "Event 'to' is null";
+        assert size < type.length : "TaskList is full";
+
         type[size] = 'E';
         desc[size] = description;
         isDone[size] = false;
@@ -183,6 +199,8 @@ public class TaskList {
         if (!isValidIndex(index)) {
             return;
         }
+        
+        assert index >= 0 && index < size : "delete index out of range: " + index;
 
         for (int i = index; i < size - 1; i++) {
             type[i] = type[i + 1];

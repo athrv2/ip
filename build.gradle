@@ -27,10 +27,10 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    jvmArgs '-ea'
 
     testLogging {
         events "passed", "skipped", "failed"
-
         showExceptions true
         exceptionFormat "full"
         showCauses true
@@ -48,6 +48,7 @@ shadowJar {
     archiveClassifier = null
 }
 
-run{
+run {
     standardInput = System.in
+    jvmArgs '-ea'
 }
