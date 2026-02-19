@@ -11,6 +11,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * JavaFX UI for interacting with the Adolf bot.
+ */
 public class Main extends Application {
 
     private final AdolfBot bot = new AdolfBot();
@@ -32,7 +35,9 @@ public class Main extends Application {
 
         Runnable send = () -> {
             String userText = inputField.getText();
-            if (userText == null || userText.trim().isEmpty()) return;
+            if (userText == null || userText.trim().isEmpty()) {
+                return;
+            }
 
             chatArea.appendText("You: " + userText + "\n");
 
@@ -61,4 +66,5 @@ public class Main extends Application {
         chatArea.appendText("Adolf: Hello! I'm Adolf.\n");
         chatArea.appendText("Adolf: What can I do for you?\n\n");
     }
+
 }

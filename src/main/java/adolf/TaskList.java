@@ -59,7 +59,6 @@ public class TaskList {
      */
     public void setSize(int size) {
         if (size < 0 || size > type.length) {
-            // keep it safe: do nothing if invalid
             return;
         }
         this.size = size;
@@ -88,23 +87,9 @@ public class TaskList {
         if (isFull()) {
             return -1;
         }
-
-        type[size] = 'T';
-        desc[size] = description;
-        isDone[size] = false;
-
-        // clear date/time fields
-        deadlineBy[size] = null;
-        deadlineHasTime[size] = false;
-
-        eventFrom[size] = null;
-        eventTo[size] = null;
-        eventFromHasTime[size] = false;
-        eventToHasTime[size] = false;
-
-        int addedIndex = size;
-        size++;
-        return addedIndex;
+        int index = appendBaseTask('T', description);
+        clearDateTimeFields(index);
+        return index;
     }
 
     /**
@@ -119,23 +104,18 @@ public class TaskList {
         if (isFull()) {
             return -1;
         }
+        int index = appendBaseTask('D', description);
 
-        type[size] = 'D';
-        desc[size] = description;
-        isDone[size] = false;
+        deadlineBy[index] = by;
+        deadlineHasTime[index] = hasTime;
 
-        deadlineBy[size] = by;
-        deadlineHasTime[size] = hasTime;
+        // keep data clean
+        eventFrom[index] = null;
+        eventTo[index] = null;
+        eventFromHasTime[index] = false;
+        eventToHasTime[index] = false;
 
-        // clear event fields
-        eventFrom[size] = null;
-        eventTo[size] = null;
-        eventFromHasTime[size] = false;
-        eventToHasTime[size] = false;
-
-        int addedIndex = size;
-        size++;
-        return addedIndex;
+        return index;
     }
 
     /**
@@ -151,27 +131,21 @@ public class TaskList {
     public int addEvent(String description,
                         LocalDateTime from, boolean fromHasTime,
                         LocalDateTime to, boolean toHasTime) {
-
         if (isFull()) {
             return -1;
         }
+        int index = appendBaseTask('E', description);
 
-        type[size] = 'E';
-        desc[size] = description;
-        isDone[size] = false;
+        eventFrom[index] = from;
+        eventTo[index] = to;
+        eventFromHasTime[index] = fromHasTime;
+        eventToHasTime[index] = toHasTime;
 
-        eventFrom[size] = from;
-        eventTo[size] = to;
-        eventFromHasTime[size] = fromHasTime;
-        eventToHasTime[size] = toHasTime;
+        // keep data clean
+        deadlineBy[index] = null;
+        deadlineHasTime[index] = false;
 
-        // clear deadline fields
-        deadlineBy[size] = null;
-        deadlineHasTime[size] = false;
-
-        int addedIndex = size;
-        size++;
-        return addedIndex;
+        return index;
     }
 
     /**
@@ -183,6 +157,8 @@ public class TaskList {
         if (!isValidIndex(index)) {
             return;
         }
+        assert size > 0 : "Delete called when size is 0";
+        assert index >= 0 && index < size : "Delete index out of range";
 
         for (int i = index; i < size - 1; i++) {
             type[i] = type[i + 1];
@@ -198,20 +174,7 @@ public class TaskList {
             eventToHasTime[i] = eventToHasTime[i + 1];
         }
 
-        // clear last slot
-        int last = size - 1;
-        type[last] = '\0';
-        desc[last] = null;
-        isDone[last] = false;
-
-        deadlineBy[last] = null;
-        deadlineHasTime[last] = false;
-
-        eventFrom[last] = null;
-        eventTo[last] = null;
-        eventFromHasTime[last] = false;
-        eventToHasTime[last] = false;
-
+        clearSlot(size - 1);
         size--;
     }
 
@@ -223,6 +186,35 @@ public class TaskList {
 
     private boolean isValidIndex(int index) {
         return index >= 0 && index < size;
+    }
+
+    private void ensureCapacity() {
+        assert size < type.length : "TaskList capacity exceeded";
+    }
+
+    private int appendBaseTask(char taskType, String description) {
+        ensureCapacity();
+        type[size] = taskType;
+        desc[size] = description;
+        isDone[size] = false;
+        return size++;
+    }
+
+    private void clearDateTimeFields(int i) {
+        deadlineBy[i] = null;
+        deadlineHasTime[i] = false;
+
+        eventFrom[i] = null;
+        eventTo[i] = null;
+        eventFromHasTime[i] = false;
+        eventToHasTime[i] = false;
+    }
+
+    private void clearSlot(int i) {
+        type[i] = '\0';
+        desc[i] = null;
+        isDone[i] = false;
+        clearDateTimeFields(i);
     }
 
     // Temporary getters so Storage + Adolf can keep working while we refactor
@@ -261,4 +253,5 @@ public class TaskList {
     public boolean[] eventToHasTime() {
         return eventToHasTime;
     }
+
 }
