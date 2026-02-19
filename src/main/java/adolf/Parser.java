@@ -95,4 +95,31 @@ public class Parser {
                 second[1].trim()
         };
     }
+
+    /**
+     * Parses "update &lt;index&gt; &lt;new description&gt;" into {index, newDescription}.
+     *
+     * @param input full user input, e.g. {@code "update 1 read book"}
+     * @return array with index (as string) and new description, or {@code null} if invalid
+     */
+    public static String[] parseUpdate(String input) {
+        if (!input.startsWith("update ")) {
+            return null;
+        }
+
+        String rest = input.substring(7).trim();
+        String[] parts = rest.split(" ", 2);
+
+        if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            Integer.parseInt(parts[0].trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        return new String[]{parts[0].trim(), parts[1].trim()};
+    }
 }

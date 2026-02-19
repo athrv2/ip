@@ -168,6 +168,49 @@ public class Adolf {
                 continue;
             }
 
+            if (Parser.isCommand(cleaned, "update")) {
+                String[] updateParts = Parser.parseUpdate(cleaned);
+                if (updateParts == null) {
+                    ui.showError("Update usage: update <number> <new description>");
+                    continue;
+                }
+
+                Integer index;
+                try {
+                    index = Integer.parseInt(updateParts[0]) - 1;
+                } catch (NumberFormatException e) {
+                    ui.showError("Please provide a valid task number. Usage: update <number> <new description>");
+                    continue;
+                }
+
+                if (index < 0 || index >= tasks.size()) {
+                    ui.showError("That task number doesn't exist. Use: list (then update <number> <new description>).");
+                    continue;
+                }
+
+                String oldFormatted = formatTask(
+                        tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        index);
+
+                tasks.updateDescription(index, updateParts[1]);
+
+                storage.save(tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        tasks.size());
+
+                String newFormatted = formatTask(
+                        tasks.types(), tasks.descs(), tasks.dones(),
+                        tasks.deadlineBy(), tasks.deadlineHasTime(),
+                        tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                        index);
+
+                ui.showBox("Updated task:\n  " + oldFormatted + "\n  -> " + newFormatted);
+                continue;
+            }
+
             if (cleaned.equals("todo")) {
                 ui.showError("The description of a todo cannot be empty. Usage: todo <description>");
                 continue;
@@ -274,7 +317,7 @@ public class Adolf {
             }
 
             ui.showError("I'm sorry, I don't know what that means. Try: todo, deadline, event, list, "
-                    + "mark, unmark, delete, bye");
+                    + "mark, unmark, delete, update, find, bye");
         }
     }
 
