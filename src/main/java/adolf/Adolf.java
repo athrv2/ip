@@ -279,7 +279,7 @@ public class Adolf {
         }
     }
 
-    private static class ParsedDateTime {
+    public static class ParsedDateTime {
         private final LocalDateTime value;
         private final boolean hasTime;
 
@@ -288,16 +288,16 @@ public class Adolf {
             this.hasTime = hasTime;
         }
 
-        LocalDateTime getValue() {
+        public LocalDateTime getValue() {
             return value;
         }
-
-        boolean isHasTime() {
+        
+        public boolean isHasTime() {
             return hasTime;
         }
     }
 
-    private static ParsedDateTime parseDateOrDateTime(String s) {
+    public static ParsedDateTime parseDateOrDateTime(String s) {
         try {
             LocalDateTime dt = LocalDateTime.parse(s, INPUT_DATE_TIME);
             return new ParsedDateTime(dt, true);
@@ -349,5 +349,14 @@ public class Adolf {
             return datePart;
         }
         return datePart + " " + dt.toLocalTime().format(OUTPUT_TIME);
+    }
+
+    public static String formatTaskForUi(TaskList tasks, int index) {
+        return formatTask(
+                tasks.types(), tasks.descs(), tasks.dones(),
+                tasks.deadlineBy(), tasks.deadlineHasTime(),
+                tasks.eventFrom(), tasks.eventTo(), tasks.eventFromHasTime(), tasks.eventToHasTime(),
+                index
+        );
     }
 }
