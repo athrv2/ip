@@ -44,4 +44,15 @@ public class TaskListTest {
         boolean[] dones = list.dones();
         assertEquals(true, dones[0]);
     }
+
+    @Test
+    public void updateDescription_changesDescriptionOnly() {
+        TaskList list = new TaskList(100);
+        int idx = list.addTodo("old description");
+
+        list.updateDescription(idx, "new description");
+
+        assertEquals("new description", list.descs()[idx]);
+        assertEquals(1, list.size());
+    }
 }
