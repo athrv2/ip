@@ -333,15 +333,31 @@ public class Adolf {
         private final LocalDateTime value;
         private final boolean hasTime;
 
+        /**
+         * Creates a ParsedDateTime value object.
+         *
+         * @param value the parsed LocalDateTime value
+         * @param hasTime whether a time component was provided
+         */
         ParsedDateTime(LocalDateTime value, boolean hasTime) {
             this.value = value;
             this.hasTime = hasTime;
         }
 
+        /**
+         * Returns the parsed LocalDateTime value.
+         *
+         * @return the LocalDateTime value
+         */
         public LocalDateTime getValue() {
             return value;
         }
 
+        /**
+         * Returns whether a time component was provided in the original input.
+         *
+         * @return true if time was provided, false if only date
+         */
         public boolean isHasTime() {
             return hasTime;
         }

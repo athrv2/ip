@@ -44,6 +44,11 @@ public class Main extends Application {
     private VBox chatContent;
     private ScrollPane scrollPane;
 
+    /**
+     * Initializes and displays the JavaFX application window.
+     *
+     * @param stage the primary stage for this application
+     */
     @Override
     public void start(Stage stage) {
         chatContent = new VBox(10);
@@ -111,6 +116,13 @@ public class Main extends Application {
         addMessage(text, fromUser, false);
     }
 
+    /**
+     * Adds a message bubble to the chat interface.
+     *
+     * @param text message content
+     * @param fromUser true if message is from user, false if from bot
+     * @param isError true if message is an error message
+     */
     private void addMessage(String text, boolean fromUser, boolean isError) {
         Text textNode = new Text(text);
         textNode.setStyle("-fx-font-size: 14px;");

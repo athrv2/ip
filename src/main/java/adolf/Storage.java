@@ -17,6 +17,11 @@ public class Storage {
     private static final DateTimeFormatter SAVE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
     private final Path filePath;
 
+    /**
+     * Creates a Storage instance with the given file path.
+     *
+     * @param relativePath relative path to the storage file
+     */
     public Storage(String relativePath) {
         this.filePath = Paths.get(relativePath);
     }

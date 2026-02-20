@@ -160,6 +160,12 @@ public class AdolfBot {
                 tasks.size());
     }
 
+    /**
+     * Checks if the given input is an exit command.
+     *
+     * @param input user input string
+     * @return true if input is "bye", false otherwise
+     */
     public boolean isExitCommand(String input) {
         return input != null && input.trim().equals("bye");
     }

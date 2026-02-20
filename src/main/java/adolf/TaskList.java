@@ -234,38 +234,83 @@ public class TaskList {
     }
 
     // Temporary getters so Storage + Adolf can keep working while we refactor
+    /**
+     * Returns the array of task types.
+     *
+     * @return array of task types ('T', 'D', or 'E')
+     */
     public char[] types() {
         return type;
     }
 
+    /**
+     * Returns the array of task descriptions.
+     *
+     * @return array of task descriptions
+     */
     public String[] descs() {
         return desc;
     }
 
+    /**
+     * Returns the array of task completion statuses.
+     *
+     * @return array of boolean values indicating task completion
+     */
     public boolean[] dones() {
         return isDone;
     }
 
+    /**
+     * Returns the array of deadline dates/times.
+     *
+     * @return array of LocalDateTime values for deadlines
+     */
     public LocalDateTime[] deadlineBy() {
         return deadlineBy;
     }
 
+    /**
+     * Returns the array indicating whether deadlines have time components.
+     *
+     * @return array of boolean values indicating if deadline has time
+     */
     public boolean[] deadlineHasTime() {
         return deadlineHasTime;
     }
 
+    /**
+     * Returns the array of event start dates/times.
+     *
+     * @return array of LocalDateTime values for event start times
+     */
     public LocalDateTime[] eventFrom() {
         return eventFrom;
     }
 
+    /**
+     * Returns the array of event end dates/times.
+     *
+     * @return array of LocalDateTime values for event end times
+     */
     public LocalDateTime[] eventTo() {
         return eventTo;
     }
 
+    /**
+     * Returns the array indicating whether event start times have time components.
+     *
+     * @return array of boolean values indicating if event start has time
+     */
     public boolean[] eventFromHasTime() {
         return eventFromHasTime;
     }
 
+    /**
+     * Returns the array indicating whether event end times have time components.
+     *
+     * @return array of boolean values indicating if event end has time
+     */
     public boolean[] eventToHasTime() {
         return eventToHasTime;
     }
