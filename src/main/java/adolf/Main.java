@@ -1,16 +1,18 @@
 package adolf;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 /**
@@ -24,14 +26,19 @@ public class Main extends Application {
     private static final double MIN_HEIGHT = 300;
     private static final String USER_BUBBLE_STYLE =
             "-fx-background-color: #d4e8f7; -fx-background-radius: 12; "
-                    + "-fx-padding: 8 12; -fx-font-size: 14px;";
+                    + "-fx-padding: 8 12; -fx-font-size: 14px; "
+                    + "-fx-control-inner-background: #d4e8f7; "
+                    + "-fx-border-width: 0;";
     private static final String BOT_BUBBLE_STYLE =
             "-fx-background-color: #f0f0f0; -fx-background-radius: 12; "
-                    + "-fx-padding: 8 12; -fx-font-size: 14px;";
+                    + "-fx-padding: 8 12; -fx-font-size: 14px; "
+                    + "-fx-control-inner-background: #f0f0f0; "
+                    + "-fx-border-width: 0;";
     private static final String ERROR_BUBBLE_STYLE =
             "-fx-background-color: #ffe0e0; -fx-background-radius: 12; "
                     + "-fx-border-color: #c44; -fx-border-radius: 10; -fx-border-width: 1; "
-                    + "-fx-padding: 8 12; -fx-font-size: 14px;";
+                    + "-fx-padding: 8 12; -fx-font-size: 14px; "
+                    + "-fx-control-inner-background: #ffe0e0;";
 
     private final AdolfBot bot = new AdolfBot();
     private VBox chatContent;
@@ -48,6 +55,10 @@ public class Main extends Application {
         scrollPane.setFitToHeight(true);
         scrollPane.setStyle("-fx-background: #fafafa;");
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        chatContent.heightProperty().addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> {
+            scrollPane.setVvalue(1.0);
+        });
 
         TextField inputField = new TextField();
         inputField.setPromptText("Type a command (e.g. list, todo ..., bye)");
@@ -101,11 +112,13 @@ public class Main extends Application {
     }
 
     private void addMessage(String text, boolean fromUser, boolean isError) {
-        Label label = new Label(text);
-        label.setWrapText(true);
-        label.setMaxWidth(400);
+        Text textNode = new Text(text);
+        textNode.setStyle("-fx-font-size: 14px;");
+        TextFlow textFlow = new TextFlow(textNode);
+        textFlow.setMaxWidth(400);
+        textFlow.setLineSpacing(2);
 
-        HBox bubble = new HBox(label);
+        HBox bubble = new HBox(textFlow);
 
         if (fromUser) {
             bubble.setStyle(USER_BUBBLE_STYLE);
@@ -120,7 +133,5 @@ public class Main extends Application {
             row.setAlignment(Pos.CENTER_LEFT);
             chatContent.getChildren().add(row);
         }
-
-        scrollPane.setVvalue(1.0);
     }
 }

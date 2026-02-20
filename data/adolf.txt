@@ -1,0 +1,6 @@
+T | 1 | read book
+T | 1 | clean dish
+D | 1 | read book | 2026-03-01 1800 | 1
+E | 1 | vacation | 2026-06-01 | 0 | 2026-06-10 | 0
+T | 1 | drink water
+T | 1 | cancel last
