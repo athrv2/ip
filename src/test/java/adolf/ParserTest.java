@@ -113,4 +113,25 @@ public class ParserTest {
         assertNull(Parser.parseEvent("event x /from 2025-01-01 /from 2025-01-02 /to 2025-01-03"));
         assertNull(Parser.parseEvent("event x /from 2025-01-01 /to 2025-01-02 /to 2025-01-03"));
     }
+
+    @Test
+    public void parseUpdate_validInput_returnsIndexAndDescription() {
+        String[] result = Parser.parseUpdate("update 1 read book");
+        assertEquals("1", result[0]);
+        assertEquals("read book", result[1]);
+
+        result = Parser.parseUpdate("update 2 new description");
+        assertEquals("2", result[0]);
+        assertEquals("new description", result[1]);
+    }
+
+    @Test
+    public void parseUpdate_invalidOrEmpty_returnsNull() {
+        assertNull(Parser.parseUpdate("update"));
+        assertNull(Parser.parseUpdate("update "));
+        assertNull(Parser.parseUpdate("update 1"));
+        assertNull(Parser.parseUpdate("update 1 "));
+        assertNull(Parser.parseUpdate("update abc description"));
+        assertNull(Parser.parseUpdate("todo read book"));
+    }
 }

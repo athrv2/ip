@@ -178,6 +178,22 @@ public class TaskList {
         size--;
     }
 
+    /**
+     * Updates the description of the task at the given index.
+     *
+     * @param index          task index (0-based)
+     * @param newDescription new non-blank description
+     */
+    public void updateDescription(int index, String newDescription) {
+        if (!isValidIndex(index)) {
+            return;
+        }
+        if (newDescription == null || newDescription.isBlank()) {
+            return;
+        }
+        desc[index] = newDescription;
+    }
+
     // ---- helper methods ----
 
     private boolean isFull() {
