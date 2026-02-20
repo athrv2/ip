@@ -29,12 +29,12 @@ public class AdolfBot {
         String cleaned = input.trim();
 
         if (cleaned.equals("bye")) {
-            return "Bye. Hope to see you again soon!";
+            return "See you! Hope to help again soon.";
         }
 
         if (cleaned.equals("list")) {
             StringBuilder sb = new StringBuilder();
-            sb.append("Here are the tasks in your list:\n");
+            sb.append("Here's your list:\n");
             for (int i = 0; i < tasks.size(); i++) {
                 sb.append(i + 1).append(". ").append(formatTask(i)).append("\n");
             }
@@ -45,47 +45,47 @@ public class AdolfBot {
         if (Parser.isCommand(cleaned, "mark")) {
             Integer index = Parser.parseIndex(cleaned, "mark");
             if (index == null) {
-                return "OOPS!!! Please provide a valid task number. Usage: mark <number>";
+                return "Oops — please give a valid task number. Usage: mark <number>";
             }
             if (index < 0 || index >= tasks.size()) {
-                return "OOPS!!! That task number doesn't exist. Use: list (then mark <number>).";
+                return "Oops — that task number doesn't exist. Use list, then mark <number>.";
             }
             tasks.markDone(index, true);
             save();
-            return "Nice! I've marked this task as done:\n" + formatTask(index);
+            return "Marked as done:\n" + formatTask(index);
         }
 
         // UNMARK
         if (Parser.isCommand(cleaned, "unmark")) {
             Integer index = Parser.parseIndex(cleaned, "unmark");
             if (index == null) {
-                return "OOPS!!! Please provide a valid task number. Usage: unmark <number>";
+                return "Oops — please give a valid task number. Usage: unmark <number>";
             }
             if (index < 0 || index >= tasks.size()) {
-                return "OOPS!!! That task number doesn't exist. Use: list (then unmark <number>).";
+                return "Oops — that task number doesn't exist. Use list, then unmark <number>.";
             }
             tasks.markDone(index, false);
             save();
-            return "OK, I've marked this task as not done yet:\n" + formatTask(index);
+            return "Marked as not done yet:\n" + formatTask(index);
         }
 
         // DELETE
         if (Parser.isCommand(cleaned, "delete")) {
             Integer index = Parser.parseIndex(cleaned, "delete");
             if (index == null) {
-                return "OOPS!!! Please provide a valid task number. Usage: delete <number>";
+                return "Oops — please give a valid task number. Usage: delete <number>";
             }
             if (index < 0 || index >= tasks.size()) {
-                return "OOPS!!! That task number doesn't exist. Use: list (then delete <number>).";
+                return "Oops — that task number doesn't exist. Use list, then delete <number>.";
             }
 
             String removed = formatTask(index);
             tasks.delete(index);
             save();
 
-            return "Noted. I've removed this task:\n"
+            return "Removed as requested:\n"
                     + removed + "\n"
-                    + "Now you have " + tasks.size() + " tasks in the list.";
+                    + "You now have " + tasks.size() + " task(s) in the list.";
         }
 
         // TODO
@@ -94,11 +94,11 @@ public class AdolfBot {
             int addedIndex = tasks.addTodo(todoDesc);
             save();
 
-            return "Got it. I've added this task:\n"
+            return "Done! I've added this task:\n"
                     + formatTask(addedIndex) + "\n"
-                    + "Now you have " + tasks.size() + " tasks in the list.";
+                    + "You now have " + tasks.size() + " task(s) in the list.";
         } else if (Parser.isCommand(cleaned, "todo")) {
-            return "OOPS!!! The description of a todo cannot be empty. Usage: todo <description>";
+            return "Oops — the description of a todo cannot be empty. Usage: todo <description>";
         }
 
         // DEADLINE
@@ -106,17 +106,17 @@ public class AdolfBot {
         if (deadlineParts != null) {
             Adolf.ParsedDateTime parsed = Adolf.parseDateOrDateTime(deadlineParts[1]); // see note below
             if (parsed == null) {
-                return "OOPS!!! Invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm "
+                return "Oops — invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm "
                         + "(e.g. 2019-10-15 or 2019-10-15 1800)";
             }
 
             int addedIndex = tasks.addDeadline(deadlineParts[0], parsed.getValue(), parsed.isHasTime());
 
-            return "Got it. I've added this task:\n"
+            return "Done! I've added this task:\n"
                     + formatTask(addedIndex) + "\n"
-                    + "Now you have " + tasks.size() + " tasks in the list.";
+                    + "You now have " + tasks.size() + " task(s) in the list.";
         } else if (Parser.isCommand(cleaned, "deadline")) {
-            return "OOPS!!! Deadline usage: deadline <desc> /by <yyyy-MM-dd> [HHmm]";
+            return "Oops — deadline usage: deadline <desc> /by <yyyy-MM-dd> [HHmm]";
         }
 
         // EVENT
@@ -126,7 +126,7 @@ public class AdolfBot {
             Adolf.ParsedDateTime parsedTo = Adolf.parseDateOrDateTime(eventParts[2]);
 
             if (parsedFrom == null || parsedTo == null) {
-                return "OOPS!!! Invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm.";
+                return "Oops — invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm.";
             }
 
             int addedIndex = tasks.addEvent(eventParts[0],
@@ -134,16 +134,16 @@ public class AdolfBot {
                     parsedTo.getValue(), parsedTo.isHasTime());
             save();
 
-            return "Got it. I've added this task:\n"
+            return "Done! I've added this task:\n"
                     + formatTask(addedIndex) + "\n"
-                    + "Now you have " + tasks.size() + " tasks in the list.";
+                    + "You now have " + tasks.size() + " task(s) in the list.";
         } else if (Parser.isCommand(cleaned, "event")) {
-            return "OOPS!!! Event usage: event <desc> /from <yyyy-MM-dd> [HHmm] "
+            return "Oops — event usage: event <desc> /from <yyyy-MM-dd> [HHmm] "
                     + "/to <yyyy-MM-dd> [HHmm]";
         }
 
-        return "OOPS!!! I'm sorry, I don't know what that means. "
-                + "Try: todo, deadline, event, list, mark, unmark, delete, bye";
+        return "Oops — I don't recognise that. Try: todo, deadline, event, list, "
+                + "mark, unmark, delete, bye";
     }
 
     private String formatTask(int index) {

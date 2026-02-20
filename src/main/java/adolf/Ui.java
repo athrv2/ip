@@ -28,8 +28,8 @@ public class Ui {
     public void showGreeting() {
         System.out.println(LINE);
         System.out.println(LOGO);
-        System.out.println("Hello! I'm Adolf");
-        System.out.println("What can I do for you?");
+        System.out.println("Hey! I'm Adolf, your task buddy.");
+        System.out.println("What would you like to do?");
         System.out.println(LINE);
     }
 
@@ -48,32 +48,32 @@ public class Ui {
     /** Prints an error message in a box. */
     public void showError(String message) {
         System.out.println(LINE);
-        System.out.println(" OOPS!!! " + message);
+        System.out.println(" Oops — " + message);
         System.out.println(LINE);
     }
 
     /** Prints confirmation that a task was added. */
     public void showAddedTask(String formattedTask, int totalCount) {
         System.out.println(LINE);
-        System.out.println(" Got it. I've added this task:");
+        System.out.println(" Done! I've added this task:");
         System.out.println("  " + formattedTask);
-        System.out.println(" Now you have " + totalCount + " tasks in the list.");
+        System.out.println(" You now have " + totalCount + " task(s) in the list.");
         System.out.println(LINE);
     }
 
     /** Prints confirmation that a task was removed. */
     public void showDeletedTask(String removedTaskLine, int newCount) {
         System.out.println(LINE);
-        System.out.println(" Noted. I've removed this task:");
+        System.out.println(" Removed as requested:");
         System.out.println("  " + removedTaskLine);
-        System.out.println(" Now you have " + newCount + " tasks in the list.");
+        System.out.println(" You now have " + newCount + " task(s) in the list.");
         System.out.println(LINE);
     }
 
     /** Prints the header for the task list. */
     public void showTaskListHeader() {
         System.out.println(LINE);
-        System.out.println(" Here are the tasks in your list:");
+        System.out.println(" Here's your list:");
     }
 
     /** Prints one task line with its display index. */
@@ -90,9 +90,9 @@ public class Ui {
     public void showMarked(boolean done, String fullTaskLine) {
         System.out.println(LINE);
         if (done) {
-            System.out.println(" Nice! I've marked this task as done:");
+            System.out.println(" Marked as done:");
         } else {
-            System.out.println(" OK, I've marked this task as not done yet:");
+            System.out.println(" Marked as not done yet:");
         }
         System.out.println("  " + fullTaskLine);
         System.out.println(LINE);
