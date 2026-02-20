@@ -36,7 +36,7 @@ public class Adolf {
 
         while (true) {
             String input = ui.readCommand();
-            String cleaned = input.trim();
+            String cleaned = Parser.normalizeInput(input);
 
             if (cleaned.equals("bye")) {
                 ui.showBox("See you! Hope to help again soon.");
@@ -246,6 +246,10 @@ public class Adolf {
 
                 if (parsedFrom == null || parsedTo == null) {
                     ui.showError("Invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm.");
+                    continue;
+                }
+                if (!parsedFrom.getValue().isBefore(parsedTo.getValue())) {
+                    ui.showError("Event end date/time must be after start.");
                     continue;
                 }
 
