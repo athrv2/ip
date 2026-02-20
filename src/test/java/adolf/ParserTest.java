@@ -75,4 +75,42 @@ public class ParserTest {
         assertNull(Parser.parseFindKeyword("find "));
         assertNull(Parser.parseFindKeyword("todo read book"));
     }
+
+    @Test
+    public void parseDeadline_validInput_returnsDescriptionAndBy() {
+        String[] r = Parser.parseDeadline("deadline submit report /by 2025-12-31");
+        assertEquals("submit report", r[0]);
+        assertEquals("2025-12-31", r[1]);
+
+        r = Parser.parseDeadline("deadline x /by 2025-01-01 1200");
+        assertEquals("x", r[0]);
+        assertEquals("2025-01-01 1200", r[1]);
+    }
+
+    @Test
+    public void parseDeadline_invalidOrDuplicateBy_returnsNull() {
+        assertNull(Parser.parseDeadline("deadline"));
+        assertNull(Parser.parseDeadline("deadline  "));
+        assertNull(Parser.parseDeadline("deadline submit /by "));
+        assertNull(Parser.parseDeadline("deadline submit /by"));
+        assertNull(Parser.parseDeadline("event x /from 2025-01-01 /to 2025-01-02"));
+        assertNull(Parser.parseDeadline("deadline a /by 2025-01-01 /by 2025-01-02"));
+    }
+
+    @Test
+    public void parseEvent_validInput_returnsParts() {
+        String[] r = Parser.parseEvent("event meeting /from 2025-06-01 /to 2025-06-02");
+        assertEquals("meeting", r[0]);
+        assertEquals("2025-06-01", r[1]);
+        assertEquals("2025-06-02", r[2]);
+    }
+
+    @Test
+    public void parseEvent_invalidOrDuplicate_returnsNull() {
+        assertNull(Parser.parseEvent("event"));
+        assertNull(Parser.parseEvent("event x /from 2025-01-01"));
+        assertNull(Parser.parseEvent("event x /from 2025-01-01 /to"));
+        assertNull(Parser.parseEvent("event x /from 2025-01-01 /from 2025-01-02 /to 2025-01-03"));
+        assertNull(Parser.parseEvent("event x /from 2025-01-01 /to 2025-01-02 /to 2025-01-03"));
+    }
 }
