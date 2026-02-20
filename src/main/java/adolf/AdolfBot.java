@@ -26,7 +26,7 @@ public class AdolfBot {
      * Processes one user input line and returns Adolf's response as a String.
      */
     public String getResponse(String input) {
-        String cleaned = input.trim();
+        String cleaned = Parser.normalizeInput(input);
 
         if (cleaned.equals("bye")) {
             return "See you! Hope to help again soon.";
@@ -127,6 +127,9 @@ public class AdolfBot {
 
             if (parsedFrom == null || parsedTo == null) {
                 return "Oops — invalid date format. Use: yyyy-MM-dd or yyyy-MM-dd HHmm.";
+            }
+            if (!parsedFrom.getValue().isBefore(parsedTo.getValue())) {
+                return "Oops — event end date/time must be after start.";
             }
 
             int addedIndex = tasks.addEvent(eventParts[0],

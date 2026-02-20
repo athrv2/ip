@@ -10,6 +10,13 @@ import org.junit.jupiter.api.Test;
 public class ParserTest {
 
     @Test
+    public void normalizeInput_collapsesSpacesAndTrims() {
+        assertEquals("mark 1", Parser.normalizeInput("mark  1"));
+        assertEquals("todo x", Parser.normalizeInput("  todo   x  "));
+        assertEquals("", Parser.normalizeInput("   "));
+    }
+
+    @Test
     public void isCommand_exactMatch_returnsTrue() {
         assertTrue(Parser.isCommand("list", "list"));
         assertTrue(Parser.isCommand("bye", "bye"));

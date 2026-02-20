@@ -1,6 +1,7 @@
 package adolf;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -75,12 +76,14 @@ public class Storage {
             int count = 0;
 
             for (String line : lines) {
-                // Skip junk lines (stretch: corrupted file handling)
                 if (line == null || line.trim().isEmpty()) {
                     continue;
                 }
 
                 String[] parts = line.split(" \\| ");
+                if (parts.length < 3 || parts[0].trim().isEmpty()) {
+                    continue;
+                }
 
                 char t = parts[0].trim().charAt(0);
 
@@ -90,25 +93,32 @@ public class Storage {
                     desc[count] = parts[2].trim();
                     count++;
                 } else if (t == 'D' && parts.length >= 5) {
+                    boolean hasTime = parts[4].trim().equals("1");
+                    LocalDateTime by = parseSavedDateOrDateTime(parts[3].trim(), hasTime);
+                    if (by == null) {
+                        continue;
+                    }
                     type[count] = 'D';
                     isDone[count] = parts[1].trim().equals("1");
                     desc[count] = parts[2].trim();
-                    boolean hasTime = parts[4].trim().equals("1");
                     deadlineHasTime[count] = hasTime;
-                    deadlineBy[count] = parseSavedDateOrDateTime(parts[3].trim(), hasTime);
+                    deadlineBy[count] = by;
                     count++;
                 } else if (t == 'E' && parts.length >= 7) {
+                    boolean fromHas = parts[4].trim().equals("1");
+                    boolean toHas = parts[6].trim().equals("1");
+                    LocalDateTime from = parseSavedDateOrDateTime(parts[3].trim(), fromHas);
+                    LocalDateTime to = parseSavedDateOrDateTime(parts[5].trim(), toHas);
+                    if (from == null || to == null || !from.isBefore(to)) {
+                        continue;
+                    }
                     type[count] = 'E';
                     isDone[count] = parts[1].trim().equals("1");
                     desc[count] = parts[2].trim();
-
-                    boolean fromHas = parts[4].trim().equals("1");
-                    boolean toHas = parts[6].trim().equals("1");
                     eventFromHasTime[count] = fromHas;
                     eventToHasTime[count] = toHas;
-
-                    eventFrom[count] = parseSavedDateOrDateTime(parts[3].trim(), fromHas);
-                    eventTo[count] = parseSavedDateOrDateTime(parts[5].trim(), toHas);
+                    eventFrom[count] = from;
+                    eventTo[count] = to;
                     count++;
                 }
 
@@ -118,6 +128,9 @@ public class Storage {
             }
 
             return count;
+        } catch (AccessDeniedException e) {
+            System.out.println("Could not read tasks file (access denied): " + filePath);
+            return 0;
         } catch (IOException e) {
             System.out.println("Could not load tasks: " + e.getMessage());
             return 0;

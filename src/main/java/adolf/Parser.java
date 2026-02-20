@@ -6,6 +6,17 @@ package adolf;
 public class Parser {
 
     /**
+     * Normalizes command input by collapsing multiple spaces and trimming.
+     * Handles leading/trailing and multiple spaces where only one is expected.
+     */
+    public static String normalizeInput(String input) {
+        if (input == null) {
+            return "";
+        }
+        return input.trim().replaceAll("\\s+", " ");
+    }
+
+    /**
      * Returns true if the input is exactly the command or starts with command and a space.
      */
     public static boolean isCommand(String input, String command) {
@@ -62,6 +73,9 @@ public class Parser {
         }
 
         String rest = input.substring(9).trim();
+        if (rest.contains(" /by ") && rest.indexOf(" /by ") != rest.lastIndexOf(" /by ")) {
+            return null;
+        }
         String[] parts = rest.split(" /by ", 2);
 
         if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
@@ -79,6 +93,12 @@ public class Parser {
         }
 
         String rest = input.substring(6).trim();
+        if (rest.contains(" /from ") && rest.indexOf(" /from ") != rest.lastIndexOf(" /from ")) {
+            return null;
+        }
+        if (rest.contains(" /to ") && rest.indexOf(" /to ") != rest.lastIndexOf(" /to ")) {
+            return null;
+        }
         String[] first = rest.split(" /from ", 2);
         if (first.length < 2 || first[0].trim().isEmpty()) {
             return null;
