@@ -58,13 +58,19 @@ public class Main extends Application {
         VBox root = new VBox(10, scrollPane, inputBox);
         root.setPadding(new Insets(10));
 
+        chatArea.setStyle("-fx-control-inner-background: #f5f0e8; -fx-font-family: 'Segoe UI', sans-serif; "
+                + "-fx-font-size: 14px;");
+        root.setStyle("-fx-background-color: #e8e2d8;");
+        inputField.setStyle("-fx-font-size: 14px;");
+        sendButton.setStyle("-fx-font-size: 14px;");
+
         Scene scene = new Scene(root, 600, 400);
-        stage.setTitle("Adolf");
+        stage.setTitle("Adolf — Your task buddy");
         stage.setScene(scene);
         stage.show();
 
-        chatArea.appendText("Adolf: Hello! I'm Adolf.\n");
-        chatArea.appendText("Adolf: What can I do for you?\n\n");
+        chatArea.appendText("Adolf: Hey! I'm Adolf, your task buddy.\n");
+        chatArea.appendText("Adolf: What would you like to do?\n\n");
     }
 
 }

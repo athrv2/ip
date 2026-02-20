@@ -39,7 +39,7 @@ public class Adolf {
             String cleaned = input.trim();
 
             if (cleaned.equals("bye")) {
-                ui.showBox("Bye. Hope to see you again soon!");
+                ui.showBox("See you! Hope to help again soon.");
                 break;
             }
 
