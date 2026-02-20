@@ -16,6 +16,11 @@ This document records the use of AI tools in this project, as per the A-AiAssist
 - **A-MoreTesting:** AI assisted in adding JUnit tests for Parser (parseDeadline, parseEvent), TaskList (addDeadline, addEvent, delete), and Adolf (parseDateOrDateTime, formatTaskForUi) in `ParserTest.java`, `TaskListTest.java`, and `AdolfTest.java`.
 - **A-UserGuide:** AI assisted in creating the user guide in `docs/README.md` (GFMD, product name, features, quick start).
 
+### Implementation Requirements Compliance
+
+- AI assisted in reviewing and ensuring compliance with implementation requirements, including:
+  - Adding missing Javadoc comments to public methods and classes (`Storage`, `TaskList`, `AdolfBot`, `Main`, `Launcher`, `Adolf.ParsedDateTime`) to meet the requirement that at least half of public methods/classes have Javadoc documentation.
+
 ### General
 
 - AI was used to improve code quality (e.g. Checkstyle compliance), add Javadoc, and suggest tests where applicable.
