@@ -20,9 +20,21 @@ repositories {
     mavenCentral()
 }
 
+// Manually pull in JavaFX natives for all platforms
+def javafxVersion = "17.0.2"
+def javafxModules = ['javafx-controls', 'javafx-fxml', 'javafx-graphics', 'javafx-base']
+def javafxPlatforms = ['win', 'linux', 'mac']
+
 dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+
+    // Include native libs for all platforms so the fat JAR works cross-platform
+    javafxModules.each { mod ->
+        javafxPlatforms.each { platform ->
+            implementation "org.openjfx:${mod}:${javafxVersion}:${platform}"
+        }
+    }
 }
 
 test {
@@ -46,6 +58,9 @@ application {
 shadowJar {
     archiveBaseName = "adolf"
     archiveClassifier = null
+
+    // Merge service files (important for JavaFX)
+    mergeServiceFiles()
 }
 
 run {
